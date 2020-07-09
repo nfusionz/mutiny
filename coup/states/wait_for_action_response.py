@@ -32,6 +32,8 @@ class WaitForActionResponse(StateInterface):
             return resolveReveal(self._state, self._state.player_turn, NoOp(self._state))
 
     def block(self, player_id: int, blocking_role: RoleEnum) -> StateInterface:
+        # If block is invalid, throw an error (without changes to state)
+        # If block is valid, return WaitForBlockResponse state
         return WaitForBlock(self._state, self._action).block(player_id, blocking_role)
 
     def allow(self, player_id: int) -> StateInterface:
