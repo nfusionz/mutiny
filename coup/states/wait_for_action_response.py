@@ -9,10 +9,9 @@ from states.wait_for_block import WaitForBlock
 
 class WaitForActionResponse(StateInterface):
 
-    def __init__(self, state: GameState, action: QueuedAction, action_role: RoleEnum):
+    def __init__(self, state: GameState, action: QueuedAction):
         super().__init__(state)
         self._action = action
-        self._role = action
         self._allow = [False if player.alive else True for player in self._state.players]
         self._allow[self._state.player_turn] = True
 
@@ -23,8 +22,10 @@ class WaitForActionResponse(StateInterface):
     def challenge(self, player_id: int) -> StateInterface:
         if self._allow[player_id]:
             raise InvalidMove("Player has implicitly allowed the action")
+        if not self._action.can_be_challenged:
+            raise InvalidMove("Current action can not be challenged")
 
-        if self._state.players[self._state.player_turn].hasAliveInfluence(self._role):
+        if self._state.players[self._state.player_turn].hasAliveInfluence(self._action.action_role):
             # Challenger loses an influence, action may or may not resolve
             return resolveReveal(self._state, player_id, self._action, query_block_next=True)
         else:
@@ -32,6 +33,8 @@ class WaitForActionResponse(StateInterface):
             return resolveReveal(self._state, self._state.player_turn, NoOp(self._state))
 
     def block(self, player_id: int, blocking_role: RoleEnum) -> StateInterface:
+        if not self._action.can_be_blocked:
+            raise InvalidMove("Current action can not be blocked")
         # If block is invalid, throw an error (without changes to state)
         # If block is valid, return WaitForBlockResponse state
         return WaitForBlock(self._state, self._action).block(player_id, blocking_role)

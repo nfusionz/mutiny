@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Union
 
 from game_state import GameState
-from game_enum import ActionEnum
+from game_enum import ActionEnum, RoleEnum
 from state_interface import StateInterface
 from exceptions import InvalidMove
 from constants import F_AID_GAIN, INCOME_GAIN, TAX_GAIN, STEAL_TRADE
@@ -43,6 +43,14 @@ class QueuedAction(ABC):
         pass
 
     @property
+    def action_role(self) -> Union[RoleEnum, None]:
+        """
+        Override this method to return the role "required" to take the associated action.
+        Should be None for income, foreign aid, coup.
+        """
+        return None
+
+    @property
     @abstractmethod
     def can_be_challenged(self) -> bool:
         pass
@@ -52,6 +60,7 @@ class QueuedAction(ABC):
     def can_be_blocked(self) -> bool:
         """ Note that you can block on a challenge phase. :( """
         pass
+
 
 
 class QueuedTargetAction(QueuedAction):
@@ -144,6 +153,10 @@ class Tax(QueuedAction):
         return ActionEnum.TAX
 
     @property
+    def action_role(self) -> RoleEnum:
+        return RoleEnum.DUKE
+
+    @property
     def can_be_challenged(self) -> bool:
         return True
 
@@ -163,6 +176,10 @@ class Assassinate(QueuedTargetAction):
     @abstractmethod
     def action_name(self) -> ActionEnum:
         return ActionEnum.ASSASSINATE
+
+    @property
+    def action_role(self) -> RoleEnum:
+        return RoleEnum.ASSASSIN
 
     @property
     def can_be_challenged(self) -> bool:
@@ -206,6 +223,10 @@ class Steal(QueuedTargetAction):
         return ActionEnum.STEAL
 
     @property
+    def action_role(self) -> RoleEnum:
+        return RoleEnum.CAPTAIN
+
+    @property
     def can_be_challenged(self) -> bool:
         return True
 
@@ -217,12 +238,20 @@ class Steal(QueuedTargetAction):
 class Exchange(QueuedAction):
 
     def resolve(self) -> StateInterface:
-        # TODO: Return exchange phase
-        pass
+        # Return exchange phase
+        # pick two cards from the top of the deck for exchange options
+        deck = self._state.deck
+        op1 = deck.pop()
+        op2 = deck.pop()
+        return states.Exchange(state=self._state, exchange_options=[op1, op2])
 
     @abstractmethod
     def action_name(self) -> ActionEnum:
         return ActionEnum.EXCHANGE
+
+    @property
+    def action_role(self) -> RoleEnum:
+        return RoleEnum.AMBASSADOR
 
     @property
     def can_be_challenged(self) -> bool:

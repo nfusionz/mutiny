@@ -15,7 +15,7 @@ class ActionEnum(Enum):
 class RoleEnum(Enum):
     DUKE = "duke"
     CAPTAIN = "captain"
-    ASSASIN = "assassin"
+    ASSASSIN = "assassin"
     CONTESSA = "contessa"
     AMBASSADOR = "ambassador"
 

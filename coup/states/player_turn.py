@@ -3,7 +3,7 @@ from game_enum import StateEnum
 from state_interface import StateInterface
 from exceptions import InvalidMove
 
-from actions import ForeignAid, Income, Coup, Steal, Tax, Assassinate
+from actions import ForeignAid, Income, Coup, Steal, Tax, Assassinate, Exchange
 
 
 class PlayerTurn(StateInterface):
@@ -30,27 +30,23 @@ class PlayerTurn(StateInterface):
         self._checkCoup()
 
         queued = ForeignAid(self._state)
-        # TODO: Return action_block phase with ForeignAid queued.
-        # TODO: On action_block success (in action_block), return Reveal + NoOp
-        raise NotImplementedError
+        return WaitForActionResponse(state=self._state, action=queued) # no action role used for fAid
 
     def tax(self, player_id: int) -> StateInterface:
         self._checkTurn(player_id)
         self._checkCoup()
 
         queued = Tax(self._state)
-        # TODO: Return action_challenge phase with Tax queued
-        raise NotImplementedError
+        return WaitForActionResponse(state=self._state, action=queued)
 
     def assassinate(self, player_id: int, target_id: int) -> StateInterface:
         self._checkTurn(player_id)
         self._checkCoup()
 
         queued = Assassinate(self._state, target_id)
-        # TODO: Return action_challenge phase with Assassinate queued
         # TODO: On a challenge, return ChallengeReveal (the only way to get to a action_block for this)
         # - This is because you can block on a challenge phase :(
-        raise NotImplementedError
+        return WaitForActionResponse(state=self._state, action=queued)
 
     def steal(self, player_id: int, target_id: int) -> StateInterface:
         self._checkTurn(player_id)
@@ -65,7 +61,15 @@ class PlayerTurn(StateInterface):
         # TODO: On a challenge, return Reveal with NoOp or Resolve queued
         # - BlockChallengeReveal does not check if action is blockable
         # TODO: Resolve
-        raise NotImplementedError
+        return WaitForActionResponse(state=self._state, action=queued)
+
+    def exchange(self, player_id: int) -> StateInterface:
+        self._checkTurn(player_id)
+        self._checkCoup()
+
+        queued = Exchange(self._state)
+
+        return WaitForActionResponse(state=self._state, action=queued)
 
     def coup(self, player_id: int, target_id: int) -> StateInterface:
         self._checkTurn(player_id)
