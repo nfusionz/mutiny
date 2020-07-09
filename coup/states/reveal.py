@@ -1,3 +1,5 @@
+from typing import Dict
+
 from actions import QueuedAction, NoOp
 from game_enum import StateEnum, RoleEnum
 from game_state import GameState
@@ -55,6 +57,15 @@ class Reveal(StateInterface):
     @property
     def state_name(self) -> StateEnum:
         return StateEnum.REVEAL
+
+    def to_dict(self, player_id=None) -> Dict:
+        d = super().to_dict(player_id)
+        d["state"]["action"] = self._action.action_name
+        if self._action.target is not None:
+            d["state"]["target"] = self._action.target
+        # TODO: blockingRole?
+        d["state"]["playerToReveal"] = self._reveal_player
+        return d
 
     def reveal(self, player_id: int, influence: RoleEnum) -> StateInterface:
         if player_id != self._reveal_id:

@@ -1,5 +1,5 @@
 from actions import NoOp
-from game_enum import StateEnum, RoleEnum
+from game_enum import StateEnum, ActionEnum, RoleEnum
 from game_state import GameState
 from state_interface import StateInterface
 from exceptions import InvalidMove
@@ -18,6 +18,13 @@ class Exchange(StateInterface):
     @property
     def state_name(self) -> StateEnum:
         return StateEnum.EXCHANGE
+
+    def to_dict(self, player_id=None) -> Dict:
+        d = super().to_dict(player_id)
+        d["state"]["action"] = ActionEnum.EXCHANGE.value
+        if player_id in [None, self._state.player_turn]:
+            d["state"]["exchangeOptions"] = self.exchange_options
+        return d
 
     def replace(self, player_id: int, influences: Tuple[RoleEnum, Union[RoleEnum, None]]) -> StateInterface:
         if player_id != self._state.player_turn:

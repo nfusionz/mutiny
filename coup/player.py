@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Tuple, Union
+from typing import Tuple, Union, Dict
 
 from exceptions import InvalidMove
 from game_enum import RoleEnum
@@ -18,6 +18,7 @@ class Player:
     Model for a player. Keeps track of cash and cards in hand.
     """
     name: str
+    self_id: int
     cash: int = CASH_START
     hand: Union[Tuple[Influence, Influence], None] = None
 
@@ -72,3 +73,21 @@ class Player:
     @property
     def alive(self) -> bool:
         return self.influence_count >= 0
+
+    def to_dict(self, player_id=None) -> Dict:
+        """
+        Returns a dictionary representing the view of this player from the perspecive of the player with player_id.
+        If player_id is self or None, give full information. Otherwise, hide hidden information.
+        """
+        has_info = player_id in [None, self.self_id]
+        d = dict()
+        d["name"] = self.name
+        d["cash"] = self.cash
+        d["influenceCount"] = self.influence_count
+        d["influence"] = [
+                {
+                    "role": inf.role.value if has_info else "unknown",
+                    "revealed": inf.revealed
+                }
+                for inf in self.hand]
+        return d

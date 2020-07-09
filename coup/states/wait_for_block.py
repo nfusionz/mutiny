@@ -1,3 +1,5 @@
+from typing import Dict
+
 from actions import QueuedAction
 from game_enum import ActionEnum, StateEnum, RoleEnum
 from game_state import GameState
@@ -24,6 +26,14 @@ class WaitForBlock(StateInterface):
         self._action = action
         self._allow = [False if player.alive else True for player in self._state.players]
         self._allow[self._state.player_turn] = True
+
+    def to_dict(self, player_id=None) -> Dict:
+        d = super().to_dict(player_id)
+        d["state"]["action"] = self._action.action_name
+        if self._action.target is not None:
+            d["state"]["target"] = self._action.target
+        return d
+
 
     @property
     def state_name(self) -> StateEnum:

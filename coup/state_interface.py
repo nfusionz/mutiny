@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Union, Tuple
+from typing import Union, Tuple, Dict
 
 from game_state import GameState
 from game_enum import StateEnum, RoleEnum
@@ -21,6 +21,20 @@ class StateInterface(ABC):
     def state_name(self) -> StateEnum:
         """ Override to give the current StateEnum. """
         pass
+
+    def to_dict(self, player_id=None) -> Dict:
+        """
+        Override and use super().to_dict to fill out remaining info in state dictionary (as it would appear in Treason).
+        player_id indicates what player is "asking for" the information. Information should be hidden accordingly.
+        When player_id is None, all info should be provided.
+        Fields to possibly be filled out in implementations include: [action, target, blockingRole, exchangeOptions, playerToReveal]
+        """
+        d = self._state.to_dict(player_id)
+        state_dict = dict()
+        state_dict["playerIdx"] = self._state.player_turn
+        state_dict["name"] = self.state_name
+        d["state"] = state_dict
+        return d
 
     def income(self, player_id: int) -> "StateInterface":
         raise InvalidMove("Cannot take income on {}".format(self.state_name))

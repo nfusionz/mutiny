@@ -1,3 +1,5 @@
+from typing import Dict
+
 from game_enum import StateEnum, RoleEnum
 from game_state import GameState
 from actions import QueuedAction, NoOp
@@ -26,6 +28,13 @@ class WaitForBlockResponse(StateInterface):
     @property
     def state_name(self) -> StateEnum:
         return StateEnum.WAIT_FOR_BLOCK_RESPONSE
+
+    def to_dict(self, player_id=None) -> Dict:
+        d = super().to_dict(player_id)
+        d["state"]["action"] = self._action.action_name
+        # person in the target field is necessarily the blocker
+        d["state"]["target"] = self._blocker_id 
+        d["state"]["blockingRole"] = self._block_role.value
 
     def challenge(self, player_id: int) -> StateInterface:
         if self._allow[player_id]:

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Tuple, Union, List
+from typing import Tuple, Union, List, Dict
 from random import randrange, shuffle
 
 from game_enum import ActionEnum, StateEnum, RoleEnum
@@ -43,6 +43,18 @@ class GameState:
     @property
     def done(self) -> bool:
         return self.players_left == 1
+
+    def to_dict(self, player_id=None) -> Dict:
+        """
+        Returns a dictionary representing the game state from the perspective of player_id.
+        When player_id is None (unspecified), returns the unobfuscated game state (all info).
+        """
+        d = dict()
+        d["stateId"] = self.state_id
+        d["players"] = [p.to_dict(player_id) for p in self.players]
+        d["playerIdx"] = player_id
+        d["numPlayers"] = len(self.players)
+
 
     def reset(self) -> None:
         """ Initialize game. """

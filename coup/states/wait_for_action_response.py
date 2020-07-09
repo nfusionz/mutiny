@@ -1,3 +1,5 @@
+from typing import Dict
+
 from actions import QueuedAction, NoOp
 from exceptions import InvalidMove
 from game_enum import StateEnum, RoleEnum
@@ -18,6 +20,13 @@ class WaitForActionResponse(StateInterface):
     @property
     def state_name(self) -> StateEnum:
         return StateEnum.WAIT_FOR_ACTION_RESPONSE
+
+    def to_dict(self, player_id=None) -> Dict:
+        d = super().to_dict(player_id)
+        d["state"]["action"] = self._action.action_name
+        if self._action.target is not None:
+            d["state"]["target"] = self._action.target
+        return d
 
     def challenge(self, player_id: int) -> StateInterface:
         if self._allow[player_id]:
