@@ -22,8 +22,8 @@ class RoleEnum(Enum):
 
 class StateEnum(Enum):
     START_TURN = "start-of-turn"  # Player turn given by playerIdx
-    WAIT_CHALLENGE = "action-response"  # Waiting for challenge
-    WAIT_BLOCK = "final-action-response"
-    WAIT_BLOCK_CHALLENGE = "block-response"  # Waiting for challenge to target's response
+    WAIT_FOR_ACTION_RESPONSE = "action-response"  # Waiting for challenge
+    WAIT_FOR_BLOCK = "final-action-response"
+    WAIT_FOR_BLOCK_RESPONSE = "block-response"  # Waiting for challenge to target's response
     REVEAL = "reveal-influence"  # See playerToReveal
     EXCHANGE = "exchange"  # playerIdx chooses card to pick

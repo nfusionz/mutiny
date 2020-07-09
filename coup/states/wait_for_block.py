@@ -4,7 +4,7 @@ from game_state import GameState
 from state_interface import StateInterface
 from exceptions import InvalidMove
 
-from states.wait_block_challenge import WaitBlockChallenge
+from states.wait_for_block_response import WaitForBlockResponse
 
 # TODO: Probably should be moved into actions logic somehow
 BLOCKING_ROLES = {
@@ -14,7 +14,7 @@ BLOCKING_ROLES = {
 }
 
 
-class WaitBlock(StateInterface):
+class WaitForBlock(StateInterface):
     """
     Only accessible after a failed action challenge.
     """
@@ -27,7 +27,7 @@ class WaitBlock(StateInterface):
 
     @property
     def state_name(self) -> StateEnum:
-        return StateEnum.WAIT_BLOCK
+        return StateEnum.WAIT_FOR_BLOCK
 
     def block(self, player_id: int, blocking_role: RoleEnum) -> StateInterface:
         if self._allow[player_id]:
@@ -37,7 +37,7 @@ class WaitBlock(StateInterface):
         if blocking_role != RoleEnum.DUKE and player_id != self._action.target:
             raise InvalidMove("Cannot block if you are not the target")
 
-        return WaitBlockChallenge(self._state, self._action, player_id, blocking_role)
+        return WaitForBlockResponse(self._state, self._action, player_id, blocking_role)
 
     def allow(self, player_id: int) -> StateInterface:
         if self._allow[player_id]:

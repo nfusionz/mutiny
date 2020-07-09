@@ -4,7 +4,7 @@ from game_state import GameState
 from state_interface import StateInterface
 from exceptions import InvalidMove
 
-from states.wait_block import WaitBlock
+from states.wait_for_block import WaitForBlock
 
 
 def resolveReveal(state: GameState,
@@ -25,7 +25,7 @@ def resolveReveal(state: GameState,
 
     # If target has not allowed / blocked action yet
     if query_block_next and action.can_be_blocked:
-        return WaitBlock(state, action)
+        return WaitForBlock(state, action)
 
     # Else, immediately resolve action
     if action.still_valid:
@@ -65,7 +65,7 @@ class Reveal(StateInterface):
         self._reveal_player.reveal(influence)
         # If target has not allowed / blocked action yet
         if self._block_next and self._action.can_be_blocked:
-            return WaitBlock(self._state, self._action)
+            return WaitForBlock(self._state, self._action)
         # Else, resolve action
         if self._action.still_valid:
             return self._action.resolve()

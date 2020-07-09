@@ -8,7 +8,7 @@ from states.player_turn import PlayerTurn
 from states.reveal import resolveReveal
 
 
-class WaitBlockChallenge(StateInterface):
+class WaitForBlockResponse(StateInterface):
 
     def __init__(self,
                  state: GameState,
@@ -25,7 +25,7 @@ class WaitBlockChallenge(StateInterface):
 
     @property
     def state_name(self) -> StateEnum:
-        return StateEnum.WAIT_BLOCK_CHALLENGE
+        return StateEnum.WAIT_FOR_BLOCK_RESPONSE
 
     def challenge(self, player_id: int) -> StateInterface:
         if self._allow[player_id]:
