@@ -49,8 +49,11 @@ class GameState:
         self.state_id = 0
         self.player_turn = randrange(len(self.players))
         self.deck = [role for _ in range(3) for role in RoleEnum]
-        shuffle(self.deck)
+        self.shuffle_deck()
 
         for player in self.players:
             player.reset()
             player.draw((self.deck.pop(), self.deck.pop()))
+
+    def shuffle_deck(self):
+        shuffle(self.deck)
