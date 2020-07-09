@@ -20,7 +20,7 @@ class Exchange(StateInterface):
         return StateEnum.EXCHANGE
 
     def replace(self, player_id: int, influences: Tuple[RoleEnum, Union[RoleEnum, None]]) -> StateInterface:
-        if player_id != self._state.playerTurn:
+        if player_id != self._state.player_turn:
             raise InvalidMove("Wrong player to exchange")
 
         player = self.state.players[player_id]
