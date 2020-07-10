@@ -60,5 +60,5 @@ class WaitForBlockResponse(StateInterface):
         self._allow[player_id] = True
         if all(self._allow):
             # Action does not resolve
-            return PlayerTurn(state=next(self._state))
+            return PlayerTurn(state=self._state.next_turn())
         return self
