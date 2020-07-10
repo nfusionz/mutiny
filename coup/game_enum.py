@@ -27,3 +27,11 @@ class StateEnum(Enum):
     WAIT_FOR_BLOCK_RESPONSE = "block-response"  # Waiting for challenge to target's response
     REVEAL = "reveal-influence"  # See playerToReveal
     EXCHANGE = "exchange"  # playerIdx chooses card to pick
+
+class CommandEnum(Enum):
+    ACTION = "play-action"
+    BLOCK = "block"
+    CHALLENGE = "challenge"
+    ALLOW = "allow"
+    REVEAL = "reveal"
+    EXCHANGE = "exchange"
