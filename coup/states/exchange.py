@@ -1,18 +1,21 @@
+from typing import Tuple, Dict, Union
+
 from actions import NoOp
 from game_enum import StateEnum, ActionEnum, RoleEnum
 from game_state import GameState
 from state_interface import StateInterface
 from exceptions import InvalidMove
 
+
 class Exchange(StateInterface):
     """
     Exchange state: only valid thing to happen is for the player whose turn it is to exchange their cards
     """
 
-    def __init__(self,
+    def __init__(self, *,
                  state: GameState,
                  exchange_options: Tuple[RoleEnum, RoleEnum]):
-        super().__init__(state)
+        super().__init__(state=state)
         self.exchange_options = exchange_options
 
     @property
@@ -30,7 +33,7 @@ class Exchange(StateInterface):
         if player_id != self._state.player_turn:
             raise InvalidMove("Wrong player to exchange")
 
-        player = self.state.players[player_id]
+        player = self._state.players[player_id]
 
         # check that the player is trying to keep the correct number of cards (maintain influence count)
         cards_to_keep = [role for role in influences if role]
@@ -41,7 +44,7 @@ class Exchange(StateInterface):
         cards_can_keep = [influence.role for influence in player.hand[player_id] if not influence.revealed] + list(self.exchange_options)
         for role in cards_to_keep:
             if role not in cards_can_keep:
-                raise InvalidMode("Exchange attempt invalid due to role choice.")
+                raise InvalidMove("Exchange attempt invalid due to role choice.")
             cards_can_keep.remove(role)
 
         removed_cards = cards_can_keep # the cards the player chose not to keep
@@ -57,4 +60,3 @@ class Exchange(StateInterface):
         self._state.shuffle_deck()
 
         return NoOp(self._state).resolve()
-

@@ -21,8 +21,10 @@ class WaitForBlock(StateInterface):
     Only accessible after a failed action challenge.
     """
 
-    def __init__(self, state: GameState, action: QueuedAction):
-        super().__init__(state)
+    def __init__(self, *,
+                 state: GameState,
+                 action: QueuedAction):
+        super().__init__(state=state)
         self._action = action
         self._allow = [False if player.alive else True for player in self._state.players]
         self._allow[self._state.player_turn] = True
@@ -33,7 +35,6 @@ class WaitForBlock(StateInterface):
         if self._action.target is not None:
             d["state"]["target"] = self._action.target
         return d
-
 
     @property
     def state_name(self) -> StateEnum:
@@ -47,7 +48,10 @@ class WaitForBlock(StateInterface):
         if blocking_role != RoleEnum.DUKE and player_id != self._action.target:
             raise InvalidMove("Cannot block if you are not the target")
 
-        return WaitForBlockResponse(self._state, self._action, player_id, blocking_role)
+        return WaitForBlockResponse(state=self._state,
+                                    action=self._action,
+                                    blocker_id=player_id,
+                                    block_role=blocking_role)
 
     def allow(self, player_id: int) -> StateInterface:
         if self._allow[player_id]:

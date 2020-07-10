@@ -13,9 +13,14 @@ class StateInterface(ABC):
     that modify game state return a (possibly new) StateInterface
     that wraps it. Essentially a state machine. """
 
-    def __init__(self, state: GameState):
+    def __init__(self, *, state: GameState):
         self._state = state
         self._player = state.players[state.player_turn]
+        self._state.state_id += 1
+
+    @property
+    def state_id(self) -> int:
+        return self._state.state_id
 
     @property
     @abstractmethod
@@ -44,7 +49,7 @@ class StateInterface(ABC):
     def income(self, player_id: int) -> "StateInterface":
         raise InvalidMove("Cannot take income on {}".format(self.state_name))
 
-    def fAid(self, player_id: int) -> "StateInterface":
+    def f_aid(self, player_id: int) -> "StateInterface":
         raise InvalidMove("Cannot take foreign aid on {}".format(self.state_name))
 
     def tax(self, player_id: int) -> "StateInterface":

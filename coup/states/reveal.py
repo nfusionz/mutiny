@@ -9,10 +9,10 @@ from exceptions import InvalidMove
 from states.wait_for_block import WaitForBlock
 
 
-def resolveReveal(state: GameState,
-                  player_id: int,
-                  action: QueuedAction,
-                  query_block_next: bool = False) -> StateInterface:
+def resolve_reveal(*, state: GameState,
+                   player_id: int,
+                   action: QueuedAction,
+                   query_block_next: bool = False) -> StateInterface:
     """
     If player has one influence left, reveal the last influence and resolve action.
     If player has two influence left, return Reveal phase with queued action.
@@ -20,14 +20,17 @@ def resolveReveal(state: GameState,
     """
     reveal_player = state.players[player_id]
     if reveal_player.influence_count > 1:
-        return Reveal(state, player_id, action, query_block_next)
+        return Reveal(state=state,
+                      reveal_id=player_id,
+                      action=action,
+                      query_block_next=query_block_next)
 
     # Immediately resolve reveal
     reveal_player.reveal()
 
     # If target has not allowed / blocked action yet
     if query_block_next and action.can_be_blocked:
-        return WaitForBlock(state, action)
+        return WaitForBlock(state=state, action=action)
 
     # Else, immediately resolve action
     if action.still_valid:
@@ -43,12 +46,12 @@ class Reveal(StateInterface):
     Set query_block_next for the next state to be WaitBlock.
     """
 
-    def __init__(self,
+    def __init__(self, *,
                  state: GameState,
                  reveal_id: int,
                  action: QueuedAction,
                  query_block_next: bool = False):
-        super().__init__(state)
+        super().__init__(state=state)
         self._reveal_id = reveal_id
         self._reveal_player = state.players[reveal_id]
         self._action = action
@@ -76,9 +79,9 @@ class Reveal(StateInterface):
         self._reveal_player.reveal(influence)
         # If target has not allowed / blocked action yet
         if self._block_next and self._action.can_be_blocked:
-            return WaitForBlock(self._state, self._action)
+            return WaitForBlock(state=self._state,
+                                action=self._action)
         # Else, resolve action
         if self._action.still_valid:
             return self._action.resolve()
         return NoOp(self._state).resolve()
-

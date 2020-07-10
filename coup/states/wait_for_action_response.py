@@ -2,17 +2,25 @@ from typing import Dict
 
 from actions import QueuedAction, NoOp
 from exceptions import InvalidMove
-from game_enum import StateEnum, RoleEnum
+from game_enum import StateEnum, RoleEnum, ActionEnum
 from game_state import GameState
 from state_interface import StateInterface
-from states.reveal import resolveReveal
-from states.wait_for_block import WaitForBlock
+from states.reveal import resolve_reveal
+from states.wait_for_block_response import WaitForBlockResponse
+
+BLOCKING_ROLES = {
+    ActionEnum.F_AID: {RoleEnum.DUKE},
+    ActionEnum.STEAL: {RoleEnum.AMBASSADOR, RoleEnum.CAPTAIN},
+    ActionEnum.ASSASSINATE: {RoleEnum.CONTESSA},
+}
 
 
 class WaitForActionResponse(StateInterface):
 
-    def __init__(self, state: GameState, action: QueuedAction):
-        super().__init__(state)
+    def __init__(self, *,
+                 state: GameState,
+                 action: QueuedAction):
+        super().__init__(state=state)
         self._action = action
         self._allow = [False if player.alive else True for player in self._state.players]
         self._allow[self._state.player_turn] = True
@@ -36,17 +44,32 @@ class WaitForActionResponse(StateInterface):
 
         if self._state.players[self._state.player_turn].hasAliveInfluence(self._action.action_role):
             # Challenger loses an influence, action may or may not resolve
-            return resolveReveal(self._state, player_id, self._action, query_block_next=True)
+            return resolve_reveal(state=self._state,
+                                  player_id=player_id,
+                                  action=self._action,
+                                  query_block_next=True)
         else:
             # Claimant loses an influence, action does not resolve (except for the initial cost)
-            return resolveReveal(self._state, self._state.player_turn, NoOp(self._state))
+            return resolve_reveal(state=self._state,
+                                  player_id=self._state.player_turn,
+                                  action=NoOp(self._state))
 
     def block(self, player_id: int, blocking_role: RoleEnum) -> StateInterface:
         if not self._action.can_be_blocked:
             raise InvalidMove("Current action can not be blocked")
-        # If block is invalid, throw an error (without changes to state)
-        # If block is valid, return WaitForBlockResponse state
-        return WaitForBlock(self._state, self._action).block(player_id, blocking_role)
+
+        # Note this is duplicated code
+        if self._allow[player_id]:
+            raise InvalidMove("Player has already implicitly allowed the action")
+        if blocking_role not in BLOCKING_ROLES[self._action.action_name]:
+            raise InvalidMove("Cannot block {} with {}".format(self._action.action_name, blocking_role))
+        if blocking_role != RoleEnum.DUKE and player_id != self._action.target:
+            raise InvalidMove("Cannot block if you are not the target")
+
+        return WaitForBlockResponse(state=self._state,
+                                    action=self._action,
+                                    blocker_id=player_id,
+                                    block_role=blocking_role)
 
     def allow(self, player_id: int) -> StateInterface:
         if self._allow[player_id]:
