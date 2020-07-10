@@ -49,6 +49,7 @@ class GameState:
         d["players"] = [p.to_dict(player_id) for p in self.players]
         d["playerIdx"] = player_id
         d["numPlayers"] = len(self.players)
+        return d
 
     def reset(self) -> None:
         """ Initialize game. """

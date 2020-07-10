@@ -35,10 +35,10 @@ class StateInterface(ABC):
         When player_id is None, all info should be provided.
         Fields to possibly be filled out in implementations include: [action, target, blockingRole, exchangeOptions, playerToReveal]
         """
-        d = self._state.to_dict(player_id)
+        d = self._state.to_dict(player_id=player_id)
         state_dict = dict()
         state_dict["playerIdx"] = self._state.player_turn
-        state_dict["name"] = self.state_name
+        state_dict["name"] = self.state_name.value
         d["state"] = state_dict
         return d
 

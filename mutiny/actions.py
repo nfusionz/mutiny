@@ -111,7 +111,7 @@ class Income(QueuedAction):
         self._state.players[self._state.player_turn].addCash(INCOME_GAIN)
         return mutiny.states.player_turn.PlayerTurn(state=self._state.next_turn())
 
-    @abstractmethod
+    @property
     def action_name(self) -> ActionEnum:
         return ActionEnum.INCOME
 
@@ -130,7 +130,7 @@ class ForeignAid(QueuedAction):
         self._state.players[self._state.player_turn].addCash(F_AID_GAIN)
         return mutiny.states.player_turn.PlayerTurn(state=self._state.next_turn())
 
-    @abstractmethod
+    @property
     def action_name(self) -> ActionEnum:
         return ActionEnum.F_AID
 
@@ -149,7 +149,7 @@ class Tax(QueuedAction):
         self._state.players[self._state.player_turn].addCash(TAX_GAIN)
         return mutiny.states.player_turn.PlayerTurn(state=self._state.next_turn())
 
-    @abstractmethod
+    @property
     def action_name(self) -> ActionEnum:
         return ActionEnum.TAX
 
@@ -174,7 +174,7 @@ class Assassinate(QueuedTargetAction):
         self._state.players[self._target_id].reveal()
         return mutiny.states.player_turn.PlayerTurn(state=self._state.next_turn())
 
-    @abstractmethod
+    @property
     def action_name(self) -> ActionEnum:
         return ActionEnum.ASSASSINATE
 
@@ -199,7 +199,7 @@ class Coup(QueuedTargetAction):
         self._state.players[self._target_id].reveal()
         return mutiny.states.player_turn.PlayerTurn(state=self._state.next_turn())
 
-    @abstractmethod
+    @property
     def action_name(self) -> ActionEnum:
         return ActionEnum.COUP
 
@@ -219,7 +219,7 @@ class Steal(QueuedTargetAction):
         self._state.players[self._state.player_turn].addCash(STEAL_TRADE)
         return mutiny.states.player_turn.PlayerTurn(state=self._state.next_turn())
 
-    @abstractmethod
+    @property
     def action_name(self) -> ActionEnum:
         return ActionEnum.STEAL
 
@@ -246,7 +246,7 @@ class Exchange(QueuedAction):
         op2 = deck.pop()
         return exchange.Exchange(state=self._state, exchange_options=(op1, op2))
 
-    @abstractmethod
+    @property
     def action_name(self) -> ActionEnum:
         return ActionEnum.EXCHANGE
 
