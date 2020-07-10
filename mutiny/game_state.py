@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from typing import Tuple, Union, List, Dict
 from random import randrange, shuffle
 
-from game_enum import ActionEnum, StateEnum, RoleEnum
-from player import Player
+from mutiny.game_enum import ActionEnum, StateEnum, RoleEnum
+from mutiny.player import Player
 
 
 @dataclass

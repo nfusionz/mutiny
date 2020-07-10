@@ -1,12 +1,12 @@
 from typing import Dict
 
-from actions import QueuedAction, NoOp
-from exceptions import InvalidMove
-from game_enum import StateEnum, RoleEnum, ActionEnum
-from game_state import GameState
-from state_interface import StateInterface
-from states.reveal import resolve_reveal
-from states.wait_for_block_response import WaitForBlockResponse
+from mutiny.actions import QueuedAction, NoOp
+from mutiny.exceptions import InvalidMove
+from mutiny.game_enum import StateEnum, RoleEnum, ActionEnum
+from mutiny.game_state import GameState
+from mutiny.state_interface import StateInterface
+from mutiny.states.reveal import resolve_reveal
+from mutiny.states.wait_for_block_response import WaitForBlockResponse
 
 BLOCKING_ROLES = {
     ActionEnum.F_AID: {RoleEnum.DUKE},

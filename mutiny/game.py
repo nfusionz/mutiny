@@ -2,9 +2,9 @@ from dataclasses import dataclass
 from typing import List, Tuple, Union
 from random import randrange, shuffle
 
-from exceptions import InvalidMove
-from game_enum import ActionEnum, RoleEnum, StateEnum
-from player import Player
+from mutiny.exceptions import InvalidMove
+from mutiny.game_enum import ActionEnum, RoleEnum, StateEnum
+from mutiny.player import Player
 
 TARGETABLE_ACTIONS = {
     ActionEnum.ASSASSINATE,
@@ -45,4 +45,4 @@ class Game:
     """
     Model for game state.
     """
-    
+

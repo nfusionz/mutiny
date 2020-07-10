@@ -1,10 +1,10 @@
 from typing import Tuple, Dict, Union
 
-from actions import NoOp
-from game_enum import StateEnum, ActionEnum, RoleEnum
-from game_state import GameState
-from state_interface import StateInterface
-from exceptions import InvalidMove
+import mutiny.actions
+from mutiny.game_enum import StateEnum, ActionEnum, RoleEnum
+from mutiny.game_state import GameState
+from mutiny.state_interface import StateInterface
+from mutiny.exceptions import InvalidMove
 
 
 class Exchange(StateInterface):
@@ -59,4 +59,4 @@ class Exchange(StateInterface):
         self._state.deck += removed_cards
         self._state.shuffle_deck()
 
-        return NoOp(self._state).resolve()
+        return mutiny.actions.NoOp(self._state).resolve()

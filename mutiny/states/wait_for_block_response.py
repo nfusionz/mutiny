@@ -1,13 +1,13 @@
 from typing import Dict
 
-from game_enum import StateEnum, RoleEnum
-from game_state import GameState
-from actions import QueuedAction, NoOp
-from state_interface import StateInterface
-from exceptions import InvalidMove
+from mutiny.game_enum import StateEnum, RoleEnum
+from mutiny.game_state import GameState
+from mutiny.actions import QueuedAction, NoOp
+from mutiny.state_interface import StateInterface
+from mutiny.exceptions import InvalidMove
 
-from states.player_turn import PlayerTurn
-from states.reveal import resolve_reveal
+import mutiny.states.player_turn
+import mutiny.states.reveal
 
 
 class WaitForBlockResponse(StateInterface):
@@ -33,7 +33,7 @@ class WaitForBlockResponse(StateInterface):
         d = super().to_dict(player_id)
         d["state"]["action"] = self._action.action_name
         # person in the target field is necessarily the blocker
-        d["state"]["target"] = self._blocker_id 
+        d["state"]["target"] = self._blocker_id
         d["state"]["blockingRole"] = self._block_role.value
         return d
 
@@ -44,11 +44,11 @@ class WaitForBlockResponse(StateInterface):
         # this is Treason-specific (you can lie about not having the influence in the og game)
         if self._state.players[self._blocker_id].hasAliveInfluence(self._block_role):
             # TODO: Swap the influence for another in the deck
-            return resolve_reveal(state=self._state,
+            return mutiny.states.reveal.resolve_reveal(state=self._state,
                                   player_id=player_id,
                                   action=NoOp(self._state))
         else:
-            return resolve_reveal(state=self._state,
+            return mutiny.states.reveal.resolve_reveal(state=self._state,
                                   player_id=self._blocker_id,
                                   action=self._action)
 
@@ -60,5 +60,5 @@ class WaitForBlockResponse(StateInterface):
         self._allow[player_id] = True
         if all(self._allow):
             # Action does not resolve
-            return PlayerTurn(state=self._state.next_turn())
+            return mutiny.states.player_turn.PlayerTurn(state=self._state.next_turn())
         return self

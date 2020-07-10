@@ -1,15 +1,17 @@
-from game_enum import CommandEnum, ActionEnum, RoleEnum
-from benedict.coup.game_state import GameState
-from benedict.coup.states.player_turn import PlayerTurn
+from mutiny.game_enum import CommandEnum, ActionEnum, RoleEnum
+from mutiny.game_state import GameState
+from mutiny.states.player_turn import PlayerTurn
+from mutiny.player import Player
+
 
 class GameObject:
     "Object to hold game state and control flow of game states"
 
     def __init__(self, players):
-        self.game_state = GameState()
-        self.game_state.players = players
+        self.players = [Player(name, i) for i,name in enumerate(players)]
+        self.game_state = GameState(self.players)
         self.game_state.reset()
-        self._state_interface = PlayerTurn(game_state)
+        self._state_interface = PlayerTurn(state=self.game_state)
 
     def get_state_id(self):
         return self.game_state.state_id
@@ -59,7 +61,7 @@ class GameObject:
         if command == CommandEnum.CHALLENGE:
             self._state_interface.challenge(player_id)
         if command == CommandEnum.EXCHANGE:
-            influences = [RoleEnum(r) for r in emission["roles"]
+            influences = [RoleEnum(r) for r in emission["roles"]]
             self._state_interface.replace(player_id)
         if command == CommandEnum.REVEAL:
             reveal_role = RoleEnum(emission["role"])

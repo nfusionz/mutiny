@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from typing import Tuple, Union, Dict
 
-from exceptions import InvalidMove
-from game_enum import RoleEnum
-from constants import CASH_LIMIT, CASH_START
+from mutiny.exceptions import InvalidMove
+from mutiny.game_enum import RoleEnum
+from mutiny.constants import CASH_LIMIT, CASH_START
 
 
 @dataclass
@@ -27,8 +27,8 @@ class Player:
         self.hand = None
 
     def draw(self, hand: Tuple[RoleEnum, RoleEnum]) -> None:
-        if hand is not None:
-            raise RuntimeError("{} has already drawn a hand".format(self.name))
+        # if hand is not None:
+        #     raise RuntimeError("{} has already drawn a hand".format(self.name))
         self.hand = (Influence(hand[0]), Influence(hand[1]))
 
     def addCash(self, cash: int):

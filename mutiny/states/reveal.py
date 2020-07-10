@@ -1,12 +1,12 @@
 from typing import Dict
 
-from actions import QueuedAction, NoOp
-from game_enum import StateEnum, RoleEnum
-from game_state import GameState
-from state_interface import StateInterface
-from exceptions import InvalidMove
+from mutiny.actions import QueuedAction, NoOp
+from mutiny.game_enum import StateEnum, RoleEnum
+from mutiny.game_state import GameState
+from mutiny.state_interface import StateInterface
+from mutiny.exceptions import InvalidMove
 
-from states.wait_for_block import WaitForBlock
+from mutiny.states.wait_for_block import WaitForBlock
 
 
 def resolve_reveal(*, state: GameState,

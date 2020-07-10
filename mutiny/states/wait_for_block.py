@@ -1,12 +1,12 @@
 from typing import Dict
 
-from actions import QueuedAction
-from game_enum import ActionEnum, StateEnum, RoleEnum
-from game_state import GameState
-from state_interface import StateInterface
-from exceptions import InvalidMove
+from mutiny.actions import QueuedAction
+from mutiny.game_enum import ActionEnum, StateEnum, RoleEnum
+from mutiny.game_state import GameState
+from mutiny.state_interface import StateInterface
+from mutiny.exceptions import InvalidMove
 
-from states.wait_for_block_response import WaitForBlockResponse
+from mutiny.states.wait_for_block_response import WaitForBlockResponse
 
 # TODO: Probably should be moved into actions logic somehow
 BLOCKING_ROLES = {

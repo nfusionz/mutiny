@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import Union, Tuple, Dict
 
-from game_state import GameState
-from game_enum import StateEnum, RoleEnum
-from exceptions import InvalidMove
-from states.player_turn import PlayerTurn
+from mutiny.game_state import GameState
+from mutiny.game_enum import StateEnum, RoleEnum
+from mutiny.exceptions import InvalidMove
+import mutiny.states.player_turn
 
 
 class StateInterface(ABC):
@@ -44,7 +44,7 @@ class StateInterface(ABC):
 
     def reset(self) -> "StateInterface":
         self._state.reset()
-        return PlayerTurn(state=self._state)
+        return mutiny.states.player_turn.PlayerTurn(state=self._state)
 
     def income(self, player_id: int) -> "StateInterface":
         raise InvalidMove("Cannot take income on {}".format(self.state_name))

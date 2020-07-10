@@ -1,8 +1,8 @@
-from actions import ForeignAid, Income, Coup, Steal, Tax, Assassinate, Exchange
-from exceptions import InvalidMove
-from game_enum import StateEnum
-from state_interface import StateInterface
-from states.wait_for_action_response import WaitForActionResponse
+from mutiny.state_interface import StateInterface
+from mutiny.actions import ForeignAid, Income, Coup, Steal, Tax, Assassinate, Exchange
+from mutiny.exceptions import InvalidMove
+from mutiny.game_enum import StateEnum
+from mutiny.states.wait_for_action_response import WaitForActionResponse
 
 
 class PlayerTurn(StateInterface):
