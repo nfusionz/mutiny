@@ -83,7 +83,6 @@ class Player:
         d = dict()
         d["name"] = self.name
         d["cash"] = self.cash
-        d["influenceCount"] = self.influence_count
         d["influence"] = [
                 {
                     "role": inf.role.value if has_info else "unknown",
