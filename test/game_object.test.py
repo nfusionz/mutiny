@@ -22,15 +22,15 @@ class BaseGameObjectTest:
 
 class PlayActionTest(BaseGameObjectTest.GameObjectTest):
     def test_income(self):
-        player_turn = self.game.game_state.player_turn
+        player_turn = self.game.game_data.player_turn
         self.game.command(player_turn, {
             "command": CommandEnum.ACTION,
             "action": ActionEnum.INCOME,            
-            "stateId": self.game.game_state.state_id,
+            "stateId": self.game.game_data.state_id,
         })
         self.assertEqual(self.game._state_interface.__class__, PlayerTurn)
-        self.assertEqual(self.game.game_state.players[player_turn].cash, 3) # player got their money
-        self.assertEqual(self.game.game_state.player_turn, (player_turn + 1) % 6) # it is the next player's turn
+        self.assertEqual(self.game.game_data.players[player_turn].cash, 3) # player got their money
+        self.assertEqual(self.game.game_data.player_turn, (player_turn + 1) % 6) # it is the next player's turn
     
     def test_foreign_aid(self):
         pass
