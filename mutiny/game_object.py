@@ -27,8 +27,12 @@ class GameObject:
         """
         player_id - the player trying to take the action
         emission - a treason style command as a dictionary
-        emissiion["stateId"] - the "time" at which the action taken was relevant
+        emission["stateId"] - the "time" at which the action taken was relevant
         """
+
+        if emission is None: # NOP
+            return
+
         if not emission["command"]:
             raise Error
 
