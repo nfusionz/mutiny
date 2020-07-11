@@ -1,26 +1,26 @@
 from abc import ABC, abstractmethod
 from typing import Union, Tuple, Dict
 
-from mutiny.game_state import GameState
+from mutiny.game_data import GameData
 from mutiny.game_enum import StateEnum, RoleEnum
 from mutiny.exceptions import InvalidMove
 import mutiny.states.player_turn
 
 
 class StateInterface(ABC):
-    """ Superclass for ways that GameState can be modified.
+    """ Superclass for ways that GameData can be modified.
     Extend this class to implement game logic. All methods
-    that modify game state return a (possibly new) StateInterface
+    that modify game data return a (possibly new) StateInterface
     that wraps it. Essentially a state machine. """
 
-    def __init__(self, *, state: GameState):
-        self._state = state
-        self._player = state.players[state.player_turn]
-        self._state.state_id += 1
+    def __init__(self, *, data: GameData):
+        self._data = data
+        self._player = data.players[data.player_turn]
+        self._data.state_id += 1
 
     @property
     def state_id(self) -> int:
-        return self._state.state_id
+        return self._data.state_id
 
     @property
     @abstractmethod
@@ -35,16 +35,16 @@ class StateInterface(ABC):
         When player_id is None, all info should be provided.
         Fields to possibly be filled out in implementations include: [action, target, blockingRole, exchangeOptions, playerToReveal]
         """
-        d = self._state.to_dict(player_id=player_id)
+        d = self._data.to_dict(player_id=player_id)
         state_dict = dict()
-        state_dict["playerIdx"] = self._state.player_turn
+        state_dict["playerIdx"] = self._data.player_turn
         state_dict["name"] = self.state_name.value
         d["state"] = state_dict
         return d
 
     def reset(self) -> "StateInterface":
-        self._state.reset()
-        return mutiny.states.player_turn.PlayerTurn(state=self._state)
+        self._data.reset()
+        return mutiny.states.player_turn.PlayerTurn(data=self._data)
 
     def income(self, player_id: int) -> "StateInterface":
         raise InvalidMove("Cannot take income on {}".format(self.state_name))

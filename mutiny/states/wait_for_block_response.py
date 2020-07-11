@@ -1,7 +1,7 @@
 from typing import Dict
 
 from mutiny.game_enum import StateEnum, RoleEnum
-from mutiny.game_state import GameState
+from mutiny.game_data import GameData
 from mutiny.actions import QueuedAction, NoOp
 from mutiny.state_interface import StateInterface
 from mutiny.exceptions import InvalidMove
@@ -13,13 +13,13 @@ import mutiny.states.reveal
 class WaitForBlockResponse(StateInterface):
 
     def __init__(self, *,
-                 state: GameState,
+                 data: GameData,
                  action: QueuedAction,
                  blocker_id: int,
                  block_role: RoleEnum):
-        super().__init__(state=state)
+        super().__init__(data=data)
         self._action = action
-        self._allow = [False if player.alive else True for player in self._state.players]
+        self._allow = [False if player.alive else True for player in self._data.players]
         self._allow[blocker_id] = True
 
         self._blocker_id = blocker_id
@@ -42,13 +42,13 @@ class WaitForBlockResponse(StateInterface):
             raise InvalidMove("Player has already implicitly allowed the block")
 
         # this is Treason-specific (you can lie about not having the influence in the og game)
-        if self._state.players[self._blocker_id].hasAliveInfluence(self._block_role):
+        if self._data.players[self._blocker_id].hasAliveInfluence(self._block_role):
             # TODO: Swap the influence for another in the deck
-            return mutiny.states.reveal.resolve_reveal(state=self._state,
+            return mutiny.states.reveal.resolve_reveal(data=self._data,
                                   player_id=player_id,
-                                  action=NoOp(self._state))
+                                  action=NoOp(self._data))
         else:
-            return mutiny.states.reveal.resolve_reveal(state=self._state,
+            return mutiny.states.reveal.resolve_reveal(data=self._data,
                                   player_id=self._blocker_id,
                                   action=self._action)
 
@@ -60,5 +60,5 @@ class WaitForBlockResponse(StateInterface):
         self._allow[player_id] = True
         if all(self._allow):
             # Action does not resolve
-            return mutiny.states.player_turn.PlayerTurn(state=self._state.next_turn())
+            return mutiny.states.player_turn.PlayerTurn(data=self._data.next_turn())
         return self

@@ -2,14 +2,14 @@ from typing import Dict
 
 from mutiny.actions import QueuedAction, NoOp
 from mutiny.game_enum import StateEnum, RoleEnum
-from mutiny.game_state import GameState
+from mutiny.game_data import GameData
 from mutiny.state_interface import StateInterface
 from mutiny.exceptions import InvalidMove
 
 from mutiny.states.wait_for_block import WaitForBlock
 
 
-def resolve_reveal(*, state: GameState,
+def resolve_reveal(*, data: GameData,
                    player_id: int,
                    action: QueuedAction,
                    query_block_next: bool = False) -> StateInterface:
@@ -18,9 +18,9 @@ def resolve_reveal(*, state: GameState,
     If player has two influence left, return Reveal phase with queued action.
     If query block_next, instead return a WaitBlock state.
     """
-    reveal_player = state.players[player_id]
+    reveal_player = data.players[player_id]
     if reveal_player.influence_count > 1:
-        return Reveal(state=state,
+        return Reveal(data=data,
                       reveal_id=player_id,
                       action=action,
                       query_block_next=query_block_next)
@@ -30,14 +30,14 @@ def resolve_reveal(*, state: GameState,
 
     # If target has not allowed / blocked action yet
     if query_block_next and action.can_be_blocked:
-        return WaitForBlock(state=state, action=action)
+        return WaitForBlock(data=data, action=action)
 
     # Else, immediately resolve action
     if action.still_valid:
         return action.resolve()
 
     # Else, next turn
-    return NoOp(state).resolve()
+    return NoOp(data).resolve()
 
 
 class Reveal(StateInterface):
@@ -47,13 +47,13 @@ class Reveal(StateInterface):
     """
 
     def __init__(self, *,
-                 state: GameState,
+                 data: GameData,
                  reveal_id: int,
                  action: QueuedAction,
                  query_block_next: bool = False):
-        super().__init__(state=state)
+        super().__init__(data=data)
         self._reveal_id = reveal_id
-        self._reveal_player = state.players[reveal_id]
+        self._reveal_player = data.players[reveal_id]
         self._action = action
         self._block_next = query_block_next
 
@@ -79,9 +79,9 @@ class Reveal(StateInterface):
         self._reveal_player.reveal(influence)
         # If target has not allowed / blocked action yet
         if self._block_next and self._action.can_be_blocked:
-            return WaitForBlock(state=self._state,
+            return WaitForBlock(data=self._data,
                                 action=self._action)
         # Else, resolve action
         if self._action.still_valid:
             return self._action.resolve()
-        return NoOp(self._state).resolve()
+        return NoOp(self._data).resolve()

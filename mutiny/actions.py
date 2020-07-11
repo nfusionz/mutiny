@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Union
 
-from mutiny.game_state import GameState
+from mutiny.game_data import GameData
 from mutiny.game_enum import ActionEnum, RoleEnum
 from mutiny.state_interface import StateInterface
 from mutiny.exceptions import InvalidMove
@@ -14,10 +14,10 @@ from mutiny.states import exchange as exchange
 class QueuedAction(ABC):
     """ An base class for actions to resolve. """
 
-    def __init__(self, state: GameState):
+    def __init__(self, data: GameData):
         # TODO: Probably should be moved into the resolve method
-        # Because the entire state of the application is based on sharing one gameState object :(
-        self._state = state
+        # Because the entire state of the application is based on sharing one GameData object :)
+        self._data = data
 
     @abstractmethod
     def resolve(self) -> StateInterface:
@@ -36,7 +36,7 @@ class QueuedAction(ABC):
         Override this property if you need more than checking if the
         action player is still valid.
         """
-        return self._state.player_alive(self._state.player_turn)
+        return self._data.player_alive(self._data.player_turn)
 
     @property
     @abstractmethod
@@ -66,11 +66,11 @@ class QueuedAction(ABC):
 
 class QueuedTargetAction(QueuedAction):
 
-    def __init__(self, state: GameState, target_id: int):
-        if not self._state.player_alive(target_id):
+    def __init__(self, data: GameData, target_id: int):
+        if not self._data.player_alive(target_id):
             # Probably don't do this.
             raise InvalidMove("Target is invalid")
-        super().__init__(state)
+        super().__init__(data)
         self._target_id = target_id
 
     @property
@@ -79,14 +79,14 @@ class QueuedTargetAction(QueuedAction):
 
     @property
     def still_valid(self):
-        return super().still_valid and self._state.player_alive(self._target_id)
+        return super().still_valid and self._data.player_alive(self._target_id)
 
 
 class NoOp(QueuedAction):
     """ If an action fails, or after a reveal or coup state. """
 
     def resolve(self) -> StateInterface:
-        return mutiny.states.player_turn.PlayerTurn(state=self._state.next_turn())
+        return mutiny.states.player_turn.PlayerTurn(data=self._data.next_turn())
 
     @property
     def still_valid(self) -> bool:
@@ -108,8 +108,8 @@ class NoOp(QueuedAction):
 class Income(QueuedAction):
 
     def resolve(self) -> StateInterface:
-        self._state.players[self._state.player_turn].addCash(INCOME_GAIN)
-        return mutiny.states.player_turn.PlayerTurn(state=self._state.next_turn())
+        self._data.players[self._data.player_turn].addCash(INCOME_GAIN)
+        return mutiny.states.player_turn.PlayerTurn(data=self._data.next_turn())
 
     @property
     def action_name(self) -> ActionEnum:
@@ -127,8 +127,8 @@ class Income(QueuedAction):
 class ForeignAid(QueuedAction):
 
     def resolve(self) -> StateInterface:
-        self._state.players[self._state.player_turn].addCash(F_AID_GAIN)
-        return mutiny.states.player_turn.PlayerTurn(state=self._state.next_turn())
+        self._data.players[self._data.player_turn].addCash(F_AID_GAIN)
+        return mutiny.states.player_turn.PlayerTurn(data=self._data.next_turn())
 
     @property
     def action_name(self) -> ActionEnum:
@@ -146,8 +146,8 @@ class ForeignAid(QueuedAction):
 class Tax(QueuedAction):
 
     def resolve(self) -> StateInterface:
-        self._state.players[self._state.player_turn].addCash(TAX_GAIN)
-        return mutiny.states.player_turn.PlayerTurn(state=self._state.next_turn())
+        self._data.players[self._data.player_turn].addCash(TAX_GAIN)
+        return mutiny.states.player_turn.PlayerTurn(data=self._data.next_turn())
 
     @property
     def action_name(self) -> ActionEnum:
@@ -169,10 +169,10 @@ class Tax(QueuedAction):
 class Assassinate(QueuedTargetAction):
 
     def resolve(self) -> StateInterface:
-        if self._state.players[self._target_id].influence_count >= 2:
+        if self._data.players[self._target_id].influence_count >= 2:
             pass  # TODO: Return reveal phase with NoOp action
-        self._state.players[self._target_id].reveal()
-        return mutiny.states.player_turn.PlayerTurn(state=self._state.next_turn())
+        self._data.players[self._target_id].reveal()
+        return mutiny.states.player_turn.PlayerTurn(data=self._data.next_turn())
 
     @property
     def action_name(self) -> ActionEnum:
@@ -194,10 +194,10 @@ class Assassinate(QueuedTargetAction):
 class Coup(QueuedTargetAction):
 
     def resolve(self) -> StateInterface:
-        if self._state.players[self._target_id].influence_count == 2:
+        if self._data.players[self._target_id].influence_count == 2:
             pass  # TODO: Return reveal phase with NoOp action
-        self._state.players[self._target_id].reveal()
-        return mutiny.states.player_turn.PlayerTurn(state=self._state.next_turn())
+        self._data.players[self._target_id].reveal()
+        return mutiny.states.player_turn.PlayerTurn(data=self._data.next_turn())
 
     @property
     def action_name(self) -> ActionEnum:
@@ -215,9 +215,9 @@ class Coup(QueuedTargetAction):
 class Steal(QueuedTargetAction):
 
     def resolve(self) -> StateInterface:
-        self._state.players[self._target_id].removeCash(STEAL_TRADE)
-        self._state.players[self._state.player_turn].addCash(STEAL_TRADE)
-        return mutiny.states.player_turn.PlayerTurn(state=self._state.next_turn())
+        self._data.players[self._target_id].removeCash(STEAL_TRADE)
+        self._data.players[self._data.player_turn].addCash(STEAL_TRADE)
+        return mutiny.states.player_turn.PlayerTurn(data=self._data.next_turn())
 
     @property
     def action_name(self) -> ActionEnum:
@@ -241,10 +241,10 @@ class Exchange(QueuedAction):
     def resolve(self) -> StateInterface:
         # Return exchange phase
         # pick two cards from the top of the deck for exchange options
-        deck = self._state.deck
+        deck = self._data.deck
         op1 = deck.pop()
         op2 = deck.pop()
-        return exchange.Exchange(state=self._state, exchange_options=(op1, op2))
+        return exchange.Exchange(data=self._data, exchange_options=(op1, op2))
 
     @property
     def action_name(self) -> ActionEnum:

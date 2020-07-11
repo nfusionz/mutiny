@@ -1,6 +1,6 @@
 from typing import List
 from mutiny.game_enum import CommandEnum, ActionEnum, RoleEnum
-from mutiny.game_state import GameState
+from mutiny.game_data import GameData
 from mutiny.states.player_turn import PlayerTurn
 from mutiny.player import Player
 from mutiny.exceptions import InvalidMove
@@ -11,17 +11,17 @@ class GameObject:
 
     def __init__(self, player_names: List[str]):
         self.players = [Player(name, i) for i,name in enumerate(player_names)]
-        self.game_state = GameState(self.players)
-        self.game_state.reset()
-        self._state_interface = PlayerTurn(state=self.game_state)
+        self.game_data = GameData(self.players)
+        self.game_data.reset()
+        self._state_interface = PlayerTurn(data=self.game_data)
 
     def get_state_id(self):
-        return self.game_state.state_id
+        return self.game_data.state_id
 
     def player_is_done(self, player_id: int) -> bool:
-        if not self.game_state.player_alive(player_id):
+        if not self.game_data.player_alive(player_id):
             return True
-        if self.game_state.winner_id == player_id:
+        if self.game_data.winner_id == player_id:
             return True
         return False
 

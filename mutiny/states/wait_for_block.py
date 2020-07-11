@@ -2,7 +2,7 @@ from typing import Dict
 
 from mutiny.actions import QueuedAction
 from mutiny.game_enum import ActionEnum, StateEnum, RoleEnum
-from mutiny.game_state import GameState
+from mutiny.game_data import GameData
 from mutiny.state_interface import StateInterface
 from mutiny.exceptions import InvalidMove
 
@@ -22,12 +22,12 @@ class WaitForBlock(StateInterface):
     """
 
     def __init__(self, *,
-                 state: GameState,
+                 data: GameData,
                  action: QueuedAction):
-        super().__init__(state=state)
+        super().__init__(data=data)
         self._action = action
-        self._allow = [False if player.alive else True for player in self._state.players]
-        self._allow[self._state.player_turn] = True
+        self._allow = [False if player.alive else True for player in self._data.players]
+        self._allow[self._data.player_turn] = True
 
     def to_dict(self, player_id=None) -> Dict:
         d = super().to_dict(player_id)
@@ -48,7 +48,7 @@ class WaitForBlock(StateInterface):
         if blocking_role != RoleEnum.DUKE and player_id != self._action.target:
             raise InvalidMove("Cannot block if you are not the target")
 
-        return WaitForBlockResponse(state=self._state,
+        return WaitForBlockResponse(data=self._data,
                                     action=self._action,
                                     blocker_id=player_id,
                                     block_role=blocking_role)

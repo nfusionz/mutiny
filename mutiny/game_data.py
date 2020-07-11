@@ -7,8 +7,8 @@ from mutiny.player import Player
 
 
 @dataclass
-class GameState:
-    """ Container for state of a game. """
+class GameData:
+    """ Container of generic game data. """
     players: List[Player]
     state_id: int = 0  # Counter for state
     player_turn: int = 0
@@ -41,8 +41,8 @@ class GameState:
 
     def to_dict(self, player_id=None) -> Dict:
         """
-        Returns a dictionary representing the game state from the perspective of player_id.
-        When player_id is None (unspecified), returns the unobfuscated game state (all info).
+        Returns a dictionary representing the game data from the perspective of player_id.
+        When player_id is None (unspecified), returns the unobfuscated game data (i.e. all info).
         """
         d = dict()
         d["stateId"] = self.state_id

@@ -2,7 +2,7 @@ from typing import Tuple, Dict, Union
 
 import mutiny.actions
 from mutiny.game_enum import StateEnum, ActionEnum, RoleEnum
-from mutiny.game_state import GameState
+from mutiny.game_data import GameData
 from mutiny.state_interface import StateInterface
 from mutiny.exceptions import InvalidMove
 
@@ -13,9 +13,9 @@ class Exchange(StateInterface):
     """
 
     def __init__(self, *,
-                 state: GameState,
+                 data: GameData,
                  exchange_options: Tuple[RoleEnum, RoleEnum]):
-        super().__init__(state=state)
+        super().__init__(data=data)
         self.exchange_options = exchange_options
 
     @property
@@ -25,15 +25,15 @@ class Exchange(StateInterface):
     def to_dict(self, player_id=None) -> Dict:
         d = super().to_dict(player_id)
         d["state"]["action"] = ActionEnum.EXCHANGE.value
-        if player_id in [None, self._state.player_turn]:
+        if player_id in [None, self._data.player_turn]:
             d["state"]["exchangeOptions"] = self.exchange_options
         return d
 
     def replace(self, player_id: int, influences: Tuple[RoleEnum, Union[RoleEnum, None]]) -> StateInterface:
-        if player_id != self._state.player_turn:
+        if player_id != self._data.player_turn:
             raise InvalidMove("Wrong player to exchange")
 
-        player = self._state.players[player_id]
+        player = self._data.players[player_id]
 
         # check that the player is trying to keep the correct number of cards (maintain influence count)
         cards_to_keep = [role for role in influences if role]
@@ -56,7 +56,7 @@ class Exchange(StateInterface):
                 player.hand[i] = influences[j]
                 j += 1
 
-        self._state.deck += removed_cards
-        self._state.shuffle_deck()
+        self._data.deck += removed_cards
+        self._data.shuffle_deck()
 
-        return mutiny.actions.NoOp(self._state).resolve()
+        return mutiny.actions.NoOp(self._data).resolve()

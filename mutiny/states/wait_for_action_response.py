@@ -3,7 +3,7 @@ from typing import Dict
 from mutiny.actions import QueuedAction, NoOp
 from mutiny.exceptions import InvalidMove
 from mutiny.game_enum import StateEnum, RoleEnum, ActionEnum
-from mutiny.game_state import GameState
+from mutiny.game_data import GameData
 from mutiny.state_interface import StateInterface
 from mutiny.states.reveal import resolve_reveal
 from mutiny.states.wait_for_block_response import WaitForBlockResponse
@@ -18,12 +18,12 @@ BLOCKING_ROLES = {
 class WaitForActionResponse(StateInterface):
 
     def __init__(self, *,
-                 state: GameState,
+                 data: GameData,
                  action: QueuedAction):
-        super().__init__(state=state)
+        super().__init__(data=data)
         self._action = action
-        self._allow = [False if player.alive else True for player in self._state.players]
-        self._allow[self._state.player_turn] = True
+        self._allow = [False if player.alive else True for player in self._data.players]
+        self._allow[self._data.player_turn] = True
 
     @property
     def state_name(self) -> StateEnum:
@@ -42,17 +42,17 @@ class WaitForActionResponse(StateInterface):
         if not self._action.can_be_challenged:
             raise InvalidMove("Current action can not be challenged")
 
-        if self._state.players[self._state.player_turn].hasAliveInfluence(self._action.action_role):
+        if self._data.players[self._data.player_turn].hasAliveInfluence(self._action.action_role):
             # Challenger loses an influence, action may or may not resolve
-            return resolve_reveal(state=self._state,
+            return resolve_reveal(data=self._data,
                                   player_id=player_id,
                                   action=self._action,
                                   query_block_next=True)
         else:
             # Claimant loses an influence, action does not resolve (except for the initial cost)
-            return resolve_reveal(state=self._state,
-                                  player_id=self._state.player_turn,
-                                  action=NoOp(self._state))
+            return resolve_reveal(data=self._data,
+                                  player_id=self._data.player_turn,
+                                  action=NoOp(self._data))
 
     def block(self, player_id: int, blocking_role: RoleEnum) -> StateInterface:
         if not self._action.can_be_blocked:
@@ -66,7 +66,7 @@ class WaitForActionResponse(StateInterface):
         if blocking_role != RoleEnum.DUKE and player_id != self._action.target:
             raise InvalidMove("Cannot block if you are not the target")
 
-        return WaitForBlockResponse(state=self._state,
+        return WaitForBlockResponse(data=self._data,
                                     action=self._action,
                                     blocker_id=player_id,
                                     block_role=blocking_role)
