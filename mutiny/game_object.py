@@ -44,7 +44,7 @@ class GameObject:
             return
 
         if not emission["command"]:
-            raise Error
+            raise RuntimeError
 
         # check for out of date state id
         if self.get_state_id() != emission["stateId"]:
@@ -79,7 +79,7 @@ class GameObject:
         if command == CommandEnum.CHALLENGE:
             self._state_interface.challenge(player_id)
         if command == CommandEnum.EXCHANGE:
-            influences = [RoleEnum(r) for r in emission["roles"]]
+            influences = tuple(RoleEnum(r) for r in emission["roles"])
             self._state_interface.replace(player_id, influences)
         if command == CommandEnum.REVEAL:
             reveal_role = RoleEnum(emission["role"])
