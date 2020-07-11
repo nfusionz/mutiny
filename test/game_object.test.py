@@ -10,17 +10,23 @@ from mutiny.states.wait_for_action_response import WaitForActionResponse
 from mutiny.states.wait_for_block import WaitForBlock
 from mutiny.states.wait_for_block_response import WaitForBlockResponse
 
-class BaseGameObjectTest:
-    class GameObjectTest(unittest.TestCase):
-        def setUp(self):
-            players = ["A", "B", "C", "D", "E", "F"]
-            self.game = GameObject(players)
-            self.game.reset()
+class BaseGameObjectTest(unittest.TestCase):
 
-        def test_checkDefaultState(self):
-            self.assertEqual(self.game._state_interface.__class__, PlayerTurn)
+    def setUp(self):
+        players = ["A", "B", "C", "D", "E", "F"]
+        self.game = GameObject(players)
+        self.game.reset()
 
-class PlayActionTest(BaseGameObjectTest.GameObjectTest):
+class GameObjectTest(BaseGameObjectTest):
+    # def setUp(self):
+    #     players = ["A", "B", "C", "D", "E", "F"]
+    #     self.game = GameObject(players)
+    #     self.game.reset()
+
+    def test_checkDefaultState(self):
+        self.assertEqual(self.game._state_interface.__class__, PlayerTurn)
+
+class PlayActionTest(BaseGameObjectTest):
     def test_income(self):
         player_turn = self.game.game_data.player_turn
         self.game.command(player_turn, {
@@ -41,11 +47,11 @@ class PlayActionTest(BaseGameObjectTest.GameObjectTest):
     def test_more_actions(self):
         pass
 
-class ActionResponseTest(BaseGameObjectTest.GameObjectTest):
-    pass
-
-class ExchangeTest(BaseGameObjectTest.GameObjectTest):
-    pass
+# class ActionResponseTest(BaseGameObjectTest):
+#     pass
+#
+# class ExchangeTest(BaseGameObjectTest):
+#     pass
 
 
 if __name__ == "__main__":
