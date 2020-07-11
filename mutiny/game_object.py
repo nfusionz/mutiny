@@ -66,7 +66,7 @@ class GameObject:
             self._state_interface.challenge(player_id)
         if command == CommandEnum.EXCHANGE:
             influences = [RoleEnum(r) for r in emission["roles"]]
-            self._state_interface.replace(player_id)
+            self._state_interface.replace(player_id, influences)
         if command == CommandEnum.REVEAL:
             reveal_role = RoleEnum(emission["role"])
             self._state_interface.reveal(player_id, reveal_role)
