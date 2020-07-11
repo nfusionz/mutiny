@@ -19,7 +19,7 @@ class GameState:
         """ Probably should not be here. """
         if not self.done:
             for i in range(1, len(self.players)):
-                player_id = self.player_turn + i % len(self.players)
+                player_id = (self.player_turn + i) % len(self.players)
                 if self.player_alive(player_id):
                     self.player_turn = player_id
                     return self
