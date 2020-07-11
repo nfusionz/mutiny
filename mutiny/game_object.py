@@ -3,6 +3,7 @@ from mutiny.game_enum import CommandEnum, ActionEnum, RoleEnum
 from mutiny.game_state import GameState
 from mutiny.states.player_turn import PlayerTurn
 from mutiny.player import Player
+from mutiny.exceptions import InvalidMove
 
 
 class GameObject:
@@ -17,6 +18,13 @@ class GameObject:
     def get_state_id(self):
         return self.game_state.state_id
 
+    def player_is_done(self, player_id: int) -> bool:
+        if not self.game_state.player_alive(player_id):
+            return True
+        if self.game_state.winner_id == player_id:
+            return True
+        return False
+
     def to_dict(self,player_id=None):
         return self._state_interface.to_dict(player_id=player_id)
 
@@ -29,6 +37,8 @@ class GameObject:
         emission - a treason style command as a dictionary
         emission["stateId"] - the "time" at which the action taken was relevant
         """
+        if self.player_is_done(self, player_id):
+            raise InvalidMove("Player cannot take any more actions in current game state.")
 
         if emission is None: # NOP
             return

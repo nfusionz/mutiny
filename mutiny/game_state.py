@@ -23,17 +23,17 @@ class GameState:
                 if self.player_alive(player_id):
                     self.player_turn = player_id
                     return self
-        if self.winner is None:
-            self.winner = [i for i, player in enumerate(self.players) if player.influence_count >= 0][0]
+        if self.winner_id is None:
+            self.winner_id = [i for i, player in enumerate(self.players) if player.influence_count > 0][0]
             return self
         raise RuntimeError("Game has already ended")
 
     def player_alive(self, player_id: int) -> bool:
-        return self.players[player_id].influence_count >= 0
+        return self.players[player_id].influence_count > 0
 
     @property
     def players_left(self) -> int:
-        return sum(1 for player in self.players if player.influence_count >= 0)
+        return sum(1 for player in self.players if player.influence_count > 0)
 
     @property
     def done(self) -> bool:
@@ -53,6 +53,7 @@ class GameState:
     def reset(self) -> None:
         """ Initialize game. """
         self.state_id = 0
+        self.winner_id = None
         self.player_turn = randrange(len(self.players))
         self.deck = [role for _ in range(3) for role in RoleEnum]
         self.shuffle_deck()
