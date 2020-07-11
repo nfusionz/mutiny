@@ -37,7 +37,7 @@ class GameObject:
         emission - a treason style command as a dictionary
         emission["stateId"] - the "time" at which the action taken was relevant
         """
-        if self.player_is_done(self, player_id):
+        if self.player_is_done(player_id):
             raise InvalidMove("Player cannot take any more actions in current game state.")
 
         if emission is None: # NOP
