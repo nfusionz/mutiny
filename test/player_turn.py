@@ -13,7 +13,7 @@ from mutiny.exceptions import InvalidMove
 
 class PlayerTurnTest(unittest.TestCase):
     def setUp(self):
-        players = [Player(a,i) for a, i in enumerate(["A", "B", "C", "D", "E", "F"])]
+        players = [Player(i, name) for i, name in enumerate(["A", "B", "C", "D", "E", "F"])]
         self.game_data = GameData(players)
         self.game_data.reset()
         self.game_data.player_turn = 0
