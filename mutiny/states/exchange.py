@@ -1,6 +1,7 @@
 from typing import Tuple, Dict, Union
 
 import mutiny.actions
+from mutiny.player import Influence
 from mutiny.game_enum import StateEnum, ActionEnum, RoleEnum
 from mutiny.game_data import GameData
 from mutiny.state_interface import StateInterface
@@ -50,11 +51,13 @@ class Exchange(StateInterface):
         removed_cards = cards_can_keep # the cards the player chose not to keep
 
         # do the actual exchange; put the cards in the hand and shuffle the other cards back into the deck
+        new_hand = [player.hand[i] for i in range(2)]
         j = 0
-        for i in range(player.influence_count):
+        for i in range(2):
             if not player.hand[i].revealed:
-                player.hand[i] = influences[j]
+                new_hand[i] = Influence(influences[j], False)
                 j += 1
+        player.hand = tuple(new_hand)
 
         self._data.deck += removed_cards
         self._data.shuffle_deck()

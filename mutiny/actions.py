@@ -248,9 +248,7 @@ class Exchange(QueuedAction):
         deck = self._data.deck
         op1 = deck.pop()
         op2 = deck.pop()
-        next_state = mutiny.states.exchange.Exchange(data=self._data, exchange_options=(op1, op2))
-        print(next_state)
-        return next_state
+        return mutiny.states.exchange.Exchange(data=self._data, exchange_options=(op1, op2))
 
     @property
     def action_name(self) -> ActionEnum:

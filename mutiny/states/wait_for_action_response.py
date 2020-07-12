@@ -43,6 +43,10 @@ class WaitForActionResponse(StateInterface):
             raise InvalidMove("Current action can not be challenged")
 
         if self._data.players[self._data.player_turn].hasAliveInfluence(self._action.action_role):
+            self._data.deck.append(self._action.action_role)
+            self._data.shuffle_deck()
+            self._data.players[self._data.player_turn].replace(self._action.action_role, self._data.deck.pop())
+
             # Challenger loses an influence, action may or may not resolve
             return resolve_reveal(data=self._data,
                                   player_id=player_id,

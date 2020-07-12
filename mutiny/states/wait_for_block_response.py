@@ -43,14 +43,17 @@ class WaitForBlockResponse(StateInterface):
 
         # this is Treason-specific (you can lie about not having the influence in the og game)
         if self._data.players[self._blocker_id].hasAliveInfluence(self._block_role):
-            # TODO: Swap the influence for another in the deck
+            self._data.deck.append(self._block_role)
+            self._data.shuffle_deck()
+            self._data.players[self._data.player_turn].replace(self._block_role, self._data.deck.pop())
+
             return mutiny.states.reveal.resolve_reveal(data=self._data,
-                                  player_id=player_id,
-                                  action=NoOp(self._data))
+                                                       player_id=player_id,
+                                                       action=NoOp(self._data))
         else:
             return mutiny.states.reveal.resolve_reveal(data=self._data,
-                                  player_id=self._blocker_id,
-                                  action=self._action)
+                                                       player_id=self._blocker_id,
+                                                       action=self._action)
 
     def allow(self, player_id: int) -> StateInterface:
         # This is an invalid move because the blocker (from the NN) is able to allow his own block
