@@ -20,6 +20,7 @@ class BaseGameObjectTest(unittest.TestCase):
         self.game = GameObject(players)
         self.game.reset()
 
+'''
 class GameObjectTest(BaseGameObjectTest):
     # def setUp(self):
     #     players = ["A", "B", "C", "D", "E", "F"]
@@ -49,6 +50,7 @@ class PlayActionTest(BaseGameObjectTest):
 
     def test_more_actions(self):
         pass
+'''
 
 class PlayRandomGameTest(BaseGameObjectTest):
 

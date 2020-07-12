@@ -66,11 +66,12 @@ class Reveal(StateInterface):
 
     def to_dict(self, player_id=None) -> Dict:
         d = super().to_dict(player_id)
-        d["state"]["action"] = self._action.action_name
+        if self._action is not None and not isinstance(self._action, NoOp):
+            d["state"]["action"] = self._action.action_name.value
         if self._action.target is not None:
             d["state"]["target"] = self._action.target
         # TODO: blockingRole?
-        d["state"]["playerToReveal"] = self._reveal_player
+        d["state"]["playerToReveal"] = self._reveal_player.self_id
         return d
 
     def reveal(self, player_id: int, influence: RoleEnum) -> StateInterface:

@@ -26,22 +26,22 @@ class Exchange(StateInterface):
         d = super().to_dict(player_id)
         d["state"]["action"] = ActionEnum.EXCHANGE.value
         if player_id in [None, self._data.player_turn]:
-            d["state"]["exchangeOptions"] = self.exchange_options
+            d["state"]["exchangeOptions"] = [o.value for o in self.exchange_options]
         return d
 
-    def replace(self, player_id: int, influences: Tuple[RoleEnum, Union[RoleEnum, None]]) -> StateInterface:
+    def replace(self, player_id: int, influences: Tuple[RoleEnum, Union[RoleEnum]]) -> StateInterface:
         if player_id != self._data.player_turn:
             raise InvalidMove("Wrong player to exchange")
 
-        player = self._data.players[player_id]
+        player = self._data.active_player
 
         # check that the player is trying to keep the correct number of cards (maintain influence count)
-        cards_to_keep = [role for role in influences if role]
-        if len(cards_to_keep) != player.influence_count():
+        cards_to_keep = [role for role in influences]
+        if len(cards_to_keep) != player.influence_count:
             raise InvalidMove("Player can only keep as many cards as influence they have.")
 
         # check influences to keep are valid (in the player's hand or in the player's exchange options)
-        cards_can_keep = [influence.role for influence in player.hand[player_id] if not influence.revealed] + list(self.exchange_options)
+        cards_can_keep = [influence.role for influence in player.hand if not influence.revealed] + list(self.exchange_options)
         for role in cards_to_keep:
             if role not in cards_can_keep:
                 raise InvalidMove("Exchange attempt invalid due to role choice.")
@@ -51,7 +51,7 @@ class Exchange(StateInterface):
 
         # do the actual exchange; put the cards in the hand and shuffle the other cards back into the deck
         j = 0
-        for i in range(len(player.influence_count)):
+        for i in range(player.influence_count):
             if not player.hand[i].revealed:
                 player.hand[i] = influences[j]
                 j += 1

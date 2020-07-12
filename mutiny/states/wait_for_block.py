@@ -1,6 +1,6 @@
 from typing import Dict
 
-from mutiny.actions import QueuedAction
+from mutiny.actions import QueuedAction, QueuedTargetAction
 from mutiny.game_enum import ActionEnum, StateEnum, RoleEnum
 from mutiny.game_data import GameData
 from mutiny.state_interface import StateInterface
@@ -31,7 +31,7 @@ class WaitForBlock(StateInterface):
 
     def to_dict(self, player_id=None) -> Dict:
         d = super().to_dict(player_id)
-        d["state"]["action"] = self._action.action_name
+        d["state"]["action"] = self._action.action_name.value
         if self._action.target is not None:
             d["state"]["target"] = self._action.target
         return d
@@ -58,5 +58,9 @@ class WaitForBlock(StateInterface):
             raise InvalidMove("Player has already implicitly allowed the action")
         self._allow[player_id] = True
 
-        if all(self._allow): return self._action.resolve()
+        # targeted actions only require permission of the target after a challenge
+        if isinstance(self._action, QueuedTargetAction) and self._allow[self._action.target]:
+            return self._action.resolve()
+        if all(self._allow):
+            return self._action.resolve()
         return self

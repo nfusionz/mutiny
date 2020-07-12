@@ -55,33 +55,33 @@ class GameObject:
         if command == CommandEnum.ACTION:
             action = ActionEnum(emission["action"])
             if action == ActionEnum.INCOME:
-                self._state_interface.income(player_id)
+                self._state_interface = self._state_interface.income(player_id)
             if action == ActionEnum.F_AID:
-                self._state_interface.f_aid(player_id)
+                self._state_interface = self._state_interface.f_aid(player_id)
             if action == ActionEnum.TAX:
-                self._state_interface.tax(player_id)
+                self._state_interface = self._state_interface.tax(player_id)
             if action == ActionEnum.ASSASSINATE:
                 target_id = emission["target"]
-                self._state_interface.assassinate(player_id, target_id)
+                self._state_interface = self._state_interface.assassinate(player_id, target_id)
             if action == ActionEnum.STEAL:
                 target_id = emission["target"]
-                self._state_interface.steal(player_id, target_id)
+                self._state_interface = self._state_interface.steal(player_id, target_id)
             if action == ActionEnum.COUP:
                 target_id = emission["target"]
-                self._state_interface.coup(player_id, target_id)
+                self._state_interface = self._state_interface.coup(player_id, target_id)
             if action == ActionEnum.EXCHANGE:
-                self._state_interface.exchange(player_id)
+                self._state_interface = self._state_interface.exchange(player_id)
         if command == CommandEnum.ALLOW:
-            self._state_interface.allow(player_id)
+            self._state_interface = self._state_interface.allow(player_id)
         if command == CommandEnum.BLOCK:
-            blocking_role = emission["blockingRole"]
-            self._state_interface.block(player_id, blocking_role)
+            blocking_role = RoleEnum(emission["blockingRole"])
+            self._state_interface = self._state_interface.block(player_id, blocking_role)
         if command == CommandEnum.CHALLENGE:
-            self._state_interface.challenge(player_id)
+            self._state_interface = self._state_interface.challenge(player_id)
         if command == CommandEnum.EXCHANGE:
             influences = tuple(RoleEnum(r) for r in emission["roles"])
-            self._state_interface.replace(player_id, influences)
+            self._state_interface = self._state_interface.replace(player_id, influences)
         if command == CommandEnum.REVEAL:
             reveal_role = RoleEnum(emission["role"])
-            self._state_interface.reveal(player_id, reveal_role)
+            self._state_interface = self._state_interface.reveal(player_id, reveal_role)
 

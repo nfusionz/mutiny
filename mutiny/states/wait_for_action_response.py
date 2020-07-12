@@ -31,7 +31,7 @@ class WaitForActionResponse(StateInterface):
 
     def to_dict(self, player_id=None) -> Dict:
         d = super().to_dict(player_id)
-        d["state"]["action"] = self._action.action_name
+        d["state"]["action"] = self._action.action_name.value
         if self._action.target is not None:
             d["state"]["target"] = self._action.target
         return d

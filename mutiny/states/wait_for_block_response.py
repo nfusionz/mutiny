@@ -31,7 +31,7 @@ class WaitForBlockResponse(StateInterface):
 
     def to_dict(self, player_id=None) -> Dict:
         d = super().to_dict(player_id)
-        d["state"]["action"] = self._action.action_name
+        d["state"]["action"] = self._action.action_name.value
         # person in the target field is necessarily the blocker
         d["state"]["target"] = self._blocker_id
         d["state"]["blockingRole"] = self._block_role.value

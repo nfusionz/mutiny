@@ -218,7 +218,7 @@ class Steal(QueuedTargetAction):
 
     def resolve(self) -> StateInterface:
         target = self._data.players[self._target_id]
-        steal_amount = min(target.cash, STEAL_AMOUNT) # TODO: does treason permit stealing 0 cash?
+        steal_amount = min(target.cash, STEAL_TRADE) # TODO: does treason permit stealing 0 cash?
         target.removeCash(steal_amount)
         self._data.active_player.addCash(steal_amount)
         return mutiny.states.player_turn.PlayerTurn(data=self._data.next_turn())
@@ -248,7 +248,9 @@ class Exchange(QueuedAction):
         deck = self._data.deck
         op1 = deck.pop()
         op2 = deck.pop()
-        return exchange.Exchange(data=self._data, exchange_options=(op1, op2))
+        next_state = mutiny.states.exchange.Exchange(data=self._data, exchange_options=(op1, op2))
+        print(next_state)
+        return next_state
 
     @property
     def action_name(self) -> ActionEnum:
