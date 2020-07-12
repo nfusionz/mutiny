@@ -69,6 +69,9 @@ class QueuedTargetAction(QueuedAction):
         if not self._data.player_alive(target_id):
             # Probably don't do this.
             raise InvalidMove("Target is invalid")
+        if self._data.player_turn == target_id:
+            raise InvalidMove("Can not target yourself")
+
         self._target_id = target_id
 
     @property
@@ -210,7 +213,7 @@ class Coup(QueuedTargetAction):
         return False
 
     @property
-    def still_valid(self) -> bool: # Coup calls resolve_reveal; avoid infinite loop 
+    def still_valid(self) -> bool: # Coup calls resolve_reveal; avoid infinite loop
         return False
 
 

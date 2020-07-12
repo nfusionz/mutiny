@@ -41,6 +41,41 @@ class PlayActionTest(BaseGameObjectTest):
         self.assertEqual(self.game.game_data.players[player_turn].cash, 3) # player got their money
         self.assertEqual(self.game.game_data.player_turn, (player_turn + 1) % 6) # it is the next player's turn
 
+    def test_assassin_block(self):
+        for i in range(6):
+            player_turn = self.game.game_data.player_turn
+            self.game.command(player_turn, {
+                "command": CommandEnum.ACTION,
+                "action": ActionEnum.INCOME,
+                "stateId": self.game.game_data.state_id,
+            })
+        player_turn = self.game.game_data.player_turn
+        target = (player_turn + 1) % len(self.game.game_data.players)
+        self.game.command(player_turn, {
+            "command" : CommandEnum.ACTION,
+            "action"  : ActionEnum.ASSASSINATE,
+            "target"  : target,
+            "stateId" : self.game.game_data.state_id
+            })
+        self.game.command(target, {
+            "command" : CommandEnum.BLOCK,
+            "blockingRole": RoleEnum.CONTESSA,
+            "target"  : target,
+            "stateId" : self.game.game_data.state_id
+            })
+        for i in range(len(self.game.game_data.players)):
+            if i != target:
+                self.game.command(i,{
+                    "command" : CommandEnum.ALLOW,
+                    "stateId" : self.game.game_data.state_id
+                    })
+
+        self.assertEqual(self.game._state_interface.__class__, PlayerTurn)
+
+        self.assertEqual(self.game.game_data.players[target].influence_count,2) # target ded
+        self.assertEqual(self.game.game_data.players[player_turn].cash, 0) # player lost money
+        self.assertEqual(self.game.game_data.player_turn, (player_turn + 1) % 6) # it is the next player's turn
+
     def test_foreign_aid_allow(self):
         player_turn = self.game.game_data.player_turn
         self.game.command(player_turn, {
