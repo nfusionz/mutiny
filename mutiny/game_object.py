@@ -1,7 +1,6 @@
 from typing import List
 from mutiny.game_enum import CommandEnum, ActionEnum, RoleEnum
 from mutiny.game_data import GameData
-from mutiny.states.player_turn import PlayerTurn
 from mutiny.player import Player
 from mutiny.exceptions import InvalidMove
 
@@ -10,6 +9,7 @@ class GameObject:
     "Object to hold game state and control flow of game states"
 
     def __init__(self, player_names: List[str]):
+        from mutiny.states.player_turn import PlayerTurn
         self.players = [Player(name, i) for i,name in enumerate(player_names)]
         self.game_data = GameData(self.players)
         self.game_data.reset()

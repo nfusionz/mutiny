@@ -3,12 +3,10 @@ from typing import Union
 
 from mutiny.game_data import GameData
 from mutiny.game_enum import ActionEnum, RoleEnum
-from mutiny.state_interface import StateInterface
 from mutiny.exceptions import InvalidMove
-from mutiny.constants import F_AID_GAIN, INCOME_GAIN, TAX_GAIN, STEAL_TRADE
-
-import mutiny.states.player_turn
-from mutiny.states import exchange as exchange
+from mutiny.constants import *
+import mutiny.states
+from mutiny.state_interface import StateInterface
 
 
 class QueuedAction(ABC):
@@ -169,10 +167,8 @@ class Tax(QueuedAction):
 class Assassinate(QueuedTargetAction):
 
     def resolve(self) -> StateInterface:
-        if self._data.players[self._target_id].influence_count >= 2:
-            pass  # TODO: Return reveal phase with NoOp action
-        self._data.players[self._target_id].reveal()
-        return mutiny.states.player_turn.PlayerTurn(data=self._data.next_turn())
+        self._data.active_player.removeCash(ASSASSINATE_COST)
+        return mutiny.states.reveal.resolve_reveal(data=self._data, player_id=self._target_id,action=self)
 
     @property
     def action_name(self) -> ActionEnum:
@@ -190,14 +186,16 @@ class Assassinate(QueuedTargetAction):
     def can_be_blocked(self) -> bool:
         return True
 
+    @property
+    def still_valid(self) -> bool: # calls resolve_reveal; avoid infinite loop
+        return False
+
 
 class Coup(QueuedTargetAction):
 
     def resolve(self) -> StateInterface:
-        if self._data.players[self._target_id].influence_count == 2:
-            pass  # TODO: Return reveal phase with NoOp action
-        self._data.players[self._target_id].reveal()
-        return mutiny.states.player_turn.PlayerTurn(data=self._data.next_turn())
+        self._data.active_player.removeCash(COUP_COST)
+        return mutiny.states.reveal.resolve_reveal(data=self._data, player_id=self._target_id, action=self)
 
     @property
     def action_name(self) -> ActionEnum:
@@ -211,12 +209,18 @@ class Coup(QueuedTargetAction):
     def can_be_blocked(self) -> bool:
         return False
 
+    @property
+    def still_valid(self) -> bool: # Coup calls resolve_reveal; avoid infinite loop 
+        return False
+
 
 class Steal(QueuedTargetAction):
 
     def resolve(self) -> StateInterface:
-        self._data.players[self._target_id].removeCash(STEAL_TRADE)
-        self._data.players[self._data.player_turn].addCash(STEAL_TRADE)
+        target = self._data.players[self._target_id]
+        steal_amount = min(target.cash, STEAL_AMOUNT) # TODO: does treason permit stealing 0 cash?
+        target.removeCash(steal_amount)
+        self._data.active_player.addCash(steal_amount)
         return mutiny.states.player_turn.PlayerTurn(data=self._data.next_turn())
 
     @property

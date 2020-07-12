@@ -14,6 +14,8 @@ def resolve_reveal(*, data: GameData,
                    action: QueuedAction,
                    query_block_next: bool = False) -> StateInterface:
     """
+    If player has zero influence left, skip any reveals, and resolve the action if necessary
+        e.g. assassination target calls out assassin holder and dies before assassination resolves
     If player has one influence left, reveal the last influence and resolve action.
     If player has two influence left, return Reveal phase with queued action.
     If query block_next, instead return a WaitBlock state.
@@ -26,7 +28,8 @@ def resolve_reveal(*, data: GameData,
                       query_block_next=query_block_next)
 
     # Immediately resolve reveal
-    reveal_player.reveal()
+    if reveal_player.influence_count > 0:
+        reveal_player.reveal()
 
     # If target has not allowed / blocked action yet
     if query_block_next and action.can_be_blocked:

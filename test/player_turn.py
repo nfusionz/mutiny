@@ -40,7 +40,7 @@ class PlayerTurnTest(unittest.TestCase):
         next_state = self.state.assassinate(0, 1)
         self.assertTrue(isinstance(next_state, WaitForActionResponse))
         self.assertEqual(next_state._action.action_name, ActionEnum.ASSASSINATE)
-        self.assertEqual(self.game_data.active_player.cash, 0)
+        self.assertEqual(self.game_data.active_player.cash, 3) # cash is deducted only if assassination goes through
 
     def test_steal(self):
         next_state = self.state.steal(0, 1)
@@ -79,6 +79,13 @@ class PlayerTurnTest(unittest.TestCase):
     def test_must_coup(self):
         self.game_data.active_player.addCash(8) # 10 cash now
         self.assertRaises(InvalidMove, self.state.income, 0)
+
+    def test_coup_one_influence(self):
+        self.game_data.active_player.addCash(5)
+        self.game_data.players[1].hand[1].revealed = True
+        next_state = self.state.coup(0,1)
+        self.assertTrue(isinstance(next_state, PlayerTurn))
+        self.assertEqual(self.game_data.player_turn, 2)
 
     def test_invalid_action(self):
         self.assertRaises(InvalidMove, self.state.allow, 0)

@@ -4,7 +4,6 @@ from typing import Union, Tuple, Dict
 from mutiny.game_data import GameData
 from mutiny.game_enum import StateEnum, RoleEnum
 from mutiny.exceptions import InvalidMove
-import mutiny.states.player_turn
 
 
 class StateInterface(ABC):
@@ -42,6 +41,7 @@ class StateInterface(ABC):
         return d
 
     def reset(self) -> "StateInterface":
+        import mutiny.states.player_turn
         self._data.reset()
         return mutiny.states.player_turn.PlayerTurn(data=self._data)
 

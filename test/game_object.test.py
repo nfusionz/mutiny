@@ -56,14 +56,20 @@ class PlayRandomGameTest(BaseGameObjectTest):
         """A modified version of step() from Benedict"""
         self.dones = {p for p in range(len(self.game.players))}
         while self.dones:
+            print(self.game.to_dict(None), '\n')
+            states = []
+            for p in range(len(self.game.players)):
+                states.append(GameState.from_dict(self.game.to_dict(p)))
+
             for p in range(len(self.game.players)):
                 if self.game.player_is_done(p):
                     if p in self.dones:
                         self.dones.remove(p)
                 else:
-                    turn = random_action(GameState.from_dict(self.game.to_dict(p)))
-                    #print(turn)
+                    turn = random_action(states[p])
+                    print(p, turn, '\n')
                     self.game.command(p, turn)
+            print('\n\n')
 
 # class ActionResponseTest(BaseGameObjectTest):
 #     pass
