@@ -72,7 +72,7 @@ class Player:
 
     @property
     def alive(self) -> bool:
-        return self.influence_count >= 0
+        return self.influence_count > 0
 
     def to_dict(self, player_id=None) -> Dict:
         """
