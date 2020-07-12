@@ -31,6 +31,11 @@ class GameData:
     def player_alive(self, player_id: int) -> bool:
         return self.players[player_id].influence_count > 0
 
+    @property 
+    def active_player(self):
+        """ Returns the Player whose turn it is """
+        return self.players[self.player_turn]
+
     @property
     def players_left(self) -> int:
         return sum(1 for player in self.players if player.influence_count > 0)

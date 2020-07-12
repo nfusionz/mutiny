@@ -67,10 +67,10 @@ class QueuedAction(ABC):
 class QueuedTargetAction(QueuedAction):
 
     def __init__(self, data: GameData, target_id: int):
+        super().__init__(data)
         if not self._data.player_alive(target_id):
             # Probably don't do this.
             raise InvalidMove("Target is invalid")
-        super().__init__(data)
         self._target_id = target_id
 
     @property

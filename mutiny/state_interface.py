@@ -15,9 +15,8 @@ class StateInterface(ABC):
 
     def __init__(self, *, data: GameData):
         self._data = data
-        self._player = data.players[data.player_turn]
         self._data.state_id += 1
-
+    
     @property
     def state_id(self) -> int:
         return self._data.state_id

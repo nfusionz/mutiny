@@ -3,6 +3,7 @@ from mutiny.actions import ForeignAid, Income, Coup, Steal, Tax, Assassinate, Ex
 from mutiny.exceptions import InvalidMove
 from mutiny.game_enum import StateEnum
 from mutiny.states.wait_for_action_response import WaitForActionResponse
+from mutiny.constants import COUP_COST, ASSASSINATE_COST
 
 
 class PlayerTurn(StateInterface):
@@ -12,8 +13,8 @@ class PlayerTurn(StateInterface):
             raise InvalidMove("Not {}'s turn".format(self._data.players[player_id].name))
 
     def _checkCoup(self) -> None:
-        if self._player.must_coup:
-            raise InvalidMove("{} must coup".format(self._player.name))
+        if self._data.active_player.must_coup:
+            raise InvalidMove("{} must coup".format(self._data.active_player.name))
 
     @property
     def state_name(self) -> StateEnum:
@@ -41,6 +42,8 @@ class PlayerTurn(StateInterface):
     def assassinate(self, player_id: int, target_id: int) -> StateInterface:
         self._checkTurn(player_id)
         self._checkCoup()
+        if self._data.active_player.cash < ASSASSINATE_COST:
+            raise InvalidMove("{} does not have enough cash to assassinate".format(self._data.active_player.name))
 
         queued = Assassinate(self._data, target_id)
         return WaitForActionResponse(data=self._data, action=queued)
@@ -61,4 +64,7 @@ class PlayerTurn(StateInterface):
 
     def coup(self, player_id: int, target_id: int) -> StateInterface:
         self._checkTurn(player_id)
+        if self._data.active_player.cash < COUP_COST:
+            raise InvalidMove("{} does not have enough cash to coup".format(self._data.active_player.name))
+
         return Coup(self._data, target_id).resolve()  # Returns reveal state with no action queued
