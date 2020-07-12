@@ -1,11 +1,11 @@
 import unittest
 
-from mutiny.game_data import GameData
 from mutiny.player import Player
+from mutiny.states.player_turn import PlayerTurn
+from mutiny.states.reveal import Reveal
 
+from mutiny.game_data import GameData
 from mutiny.actions import NoOp
-from mutiny.states.player_turn import *
-from mutiny.states.reveal import *
 
 
 class RevealTest(unittest.TestCase):
