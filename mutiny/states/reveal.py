@@ -27,12 +27,8 @@ def resolve_reveal(*, data: GameData,
                       action=action,
                       query_block_next=query_block_next)
 
-    # Immediately resolve reveal
-    if reveal_player.influence_count > 0:
-        reveal_player.reveal()
-
     # If target has not allowed / blocked action yet
-    if query_block_next and action.can_be_blocked:
+    if action.still_valid and query_block_next and action.can_be_blocked:
         return WaitForBlock(data=data, action=action)
 
     # Else, immediately resolve action
@@ -82,7 +78,7 @@ class Reveal(StateInterface):
 
         self._reveal_player.reveal(influence)
         # If target has not allowed / blocked action yet
-        if self._block_next and self._action.can_be_blocked:
+        if self._action.still_valid and self._block_next and self._action.can_be_blocked:
             return WaitForBlock(data=self._data,
                                 action=self._action)
         # Else, resolve action
