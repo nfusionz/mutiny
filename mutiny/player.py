@@ -80,13 +80,13 @@ class Player:
         If player_id is self or None, give full information. Otherwise, hide hidden information.
         """
         has_info = player_id in [None, self.self_id]
-        d = dict()
-        d["name"] = self.name
-        d["cash"] = self.cash
-        d["influence"] = [
+        return {
+            "name": self.name,
+            "cash": self.cash,
+            "influence": [
                 {
                     "role": inf.role.value if has_info or inf.revealed else "unknown",
                     "revealed": inf.revealed
                 }
                 for inf in self.hand]
-        return d
+        }

@@ -34,10 +34,10 @@ class StateInterface(ABC):
         Fields to possibly be filled out in implementations include: [action, target, blockingRole, exchangeOptions, playerToReveal]
         """
         d = self._data.to_dict(player_id=player_id)
-        state_dict = dict()
-        state_dict["playerIdx"] = self._data.player_turn
-        state_dict["name"] = self.state_name.value
-        d["state"] = state_dict
+        d["state"] = {
+            "playerIdx": self._data.player_turn,
+            "name": self.state_name.value
+        }
         return d
 
     def reset(self) -> "StateInterface":

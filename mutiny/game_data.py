@@ -49,11 +49,11 @@ class GameData:
         Returns a dictionary representing the game data from the perspective of player_id.
         When player_id is None (unspecified), returns the unobfuscated game data (i.e. all info).
         """
-        d = dict()
-        d["stateId"] = self.state_id
-        d["players"] = [p.to_dict(player_id) for p in self.players]
-        d["playerIdx"] = player_id
-        return d
+        return {
+            "stateId": self.state_id,
+            "players": [p.to_dict(player_id) for p in self.players],
+            "playerIdx": player_id
+        }
 
     def reset(self) -> None:
         """ Initialize game. """
