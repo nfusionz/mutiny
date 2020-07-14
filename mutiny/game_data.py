@@ -24,7 +24,7 @@ class GameData:
                     self.player_turn = player_id
                     return self
         if self.winner_id is None:
-            self.winner_id = [i for i, player in enumerate(self.players) if player.influence_count > 0][0]
+            self.winner_id = [i for i, player in enumerate(self.players) if player.alive][0]
             return self
         raise RuntimeError("Game has already ended")
 
@@ -38,7 +38,7 @@ class GameData:
 
     @property
     def players_left(self) -> int:
-        return sum(1 for player in self.players if player.influence_count > 0)
+        return sum(1 for player in self.players if player.alive)
 
     @property
     def done(self) -> bool:
