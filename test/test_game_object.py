@@ -13,6 +13,7 @@ from mutiny.states.wait_for_block_response import WaitForBlockResponse
 from benedict.agents.RandomAgent import random_action
 from benedict.GameState import GameState
 
+
 class BaseGameObjectTest(unittest.TestCase):
 
     def setUp(self):
@@ -27,7 +28,8 @@ class GameObjectTest(BaseGameObjectTest):
         self.assertEqual(self.game._state_interface.__class__, PlayerTurn)
 
 
-class PlayActionTest(BaseGameObjectTest):
+class IncomeTest(BaseGameObjectTest):
+
     def test_income(self):
         player_turn = self.game.game_data.player_turn
         self.game.command(player_turn, {
@@ -39,7 +41,12 @@ class PlayActionTest(BaseGameObjectTest):
         self.assertEqual(self.game.game_data.players[player_turn].cash, 3) # player got their money
         self.assertEqual(self.game.game_data.player_turn, (player_turn + 1) % 6) # it is the next player's turn
 
-    def test_assassin_block(self):
+
+class AssassinateTest(BaseGameObjectTest):
+
+    def setUp(self):
+        # round of income followed by assassination of adjacent player
+        super().setUp()
         for i in range(6):
             player_turn = self.game.game_data.player_turn
             self.game.command(player_turn, {
@@ -55,6 +62,10 @@ class PlayActionTest(BaseGameObjectTest):
             "target"  : target,
             "stateId" : self.game.game_data.state_id
         })
+
+    def test_assassin_block(self):
+        player_turn = self.game.game_data.player_turn
+        target = (player_turn + 1) % len(self.game.game_data.players)
         self.game.command(target, {
             "command" : CommandEnum.BLOCK,
             "blockingRole": RoleEnum.CONTESSA,
@@ -75,21 +86,8 @@ class PlayActionTest(BaseGameObjectTest):
         self.assertEqual(self.game.game_data.player_turn, (player_turn + 1) % 6) # it is the next player's turn
 
     def test_assassin_succeed(self):
-        for i in range(6):
-            player_turn = self.game.game_data.player_turn
-            self.game.command(player_turn, {
-                "command": CommandEnum.ACTION,
-                "action": ActionEnum.INCOME,
-                "stateId": self.game.game_data.state_id,
-            })
         player_turn = self.game.game_data.player_turn
         target = (player_turn + 1) % len(self.game.game_data.players)
-        self.game.command(player_turn, {
-            "command" : CommandEnum.ACTION,
-            "action"  : ActionEnum.ASSASSINATE,
-            "target"  : target,
-            "stateId" : self.game.game_data.state_id
-            })
         for i in range(len(self.game.game_data.players)):
             if i != player_turn:
                 self.game.command(i,{
@@ -106,6 +104,9 @@ class PlayActionTest(BaseGameObjectTest):
         self.assertEqual(self.game.game_data.players[target].influence_count,1) # target ded
         self.assertEqual(self.game.game_data.players[player_turn].cash, 0) # player lost money
         self.assertEqual(self.game.game_data.player_turn, (player_turn + 1) % 6) # it is the next player's turn
+
+
+class ForeignAidTest(BaseGameObjectTest):
 
     def test_foreign_aid_allow(self):
         player_turn = self.game.game_data.player_turn
@@ -151,6 +152,8 @@ class PlayActionTest(BaseGameObjectTest):
         self.assertEqual(self.game.game_data.players[player_turn].cash, 2) # player got their money
         self.assertEqual(self.game.game_data.player_turn, (player_turn + 1) % 6) # it is the next player's turn
 
+
+class TaxTest(BaseGameObjectTest):
     def test_tax(self):
         player_turn = self.game.game_data.player_turn
         self.game.command(player_turn, {
@@ -169,8 +172,12 @@ class PlayActionTest(BaseGameObjectTest):
         self.assertEqual(self.game.game_data.players[player_turn].cash, 5) # player got their money
         self.assertEqual(self.game.game_data.player_turn, (player_turn + 1) % 6) # it is the next player's turn
 
+
+# TODO: test more actions in more scenarios 
+class MoreActionsTest(BaseGameObjectTest):
     def test_more_actions(self):
         pass
+
 
 class PlayRandomGameTest(BaseGameObjectTest):
 
@@ -181,7 +188,7 @@ class PlayRandomGameTest(BaseGameObjectTest):
         steps=0
         while self.dones:
             steps+=1
-            #print(self.game.to_dict(None), '\n')
+            # print(self.game.to_dict(None), '\n')
             states = []
             for p in range(len(self.game.players)):
                 states.append(GameState.from_dict(self.game.to_dict(p)))
@@ -193,10 +200,10 @@ class PlayRandomGameTest(BaseGameObjectTest):
                         self.dones.remove(p)
                 else:
                     turn = random_action(states[p])
-                    #print(p, turn, '\n')
+                    # print(p, turn, '\n')
                     self.game.command(p, turn)
             if steps > 1000000:
-                print(f"exitting at {steps} steps, dones={self.dones}")
+                # print(f"exitting at {steps} steps, dones={self.dones}")
                 return
 
 
