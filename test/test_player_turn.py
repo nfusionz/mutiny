@@ -40,7 +40,7 @@ class PlayerTurnTest(unittest.TestCase):
         next_state = self.state.assassinate(0, 1)
         self.assertTrue(isinstance(next_state, WaitForActionResponse))
         self.assertEqual(next_state._action.action_name, ActionEnum.ASSASSINATE)
-        self.assertEqual(self.game_data.active_player.cash, 3) # cash is deducted only if assassination goes through
+        self.assertEqual(self.game_data.active_player.cash, 0) # cash is deducted immediately
 
     def test_steal(self):
         next_state = self.state.steal(0, 1)
@@ -57,7 +57,7 @@ class PlayerTurnTest(unittest.TestCase):
         next_state = self.state.coup(0, 1)
         self.assertEqual(self.game_data.players[0].cash, 0)
         self.assertTrue(isinstance(next_state, Reveal))
-        self.assertEqual(next_state._action.action_name, ActionEnum.COUP)
+        self.assertEqual(next_state._action.action_name, ActionEnum.NOP) # no action queued since Coup is resolved
         self.assertEqual(next_state._reveal_id, 1)
 
     # EDGE CASES

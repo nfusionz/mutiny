@@ -170,8 +170,7 @@ class Tax(QueuedAction):
 class Assassinate(QueuedTargetAction):
 
     def resolve(self) -> StateInterface:
-        self._data.active_player.removeCash(ASSASSINATE_COST)
-        return mutiny.states.reveal.resolve_reveal(data=self._data, player_id=self._target_id,action=self)
+        return mutiny.states.reveal.resolve_reveal(data=self._data, player_id=self._target_id, action=NoOp(self._data))
 
     @property
     def action_name(self) -> ActionEnum:
@@ -193,8 +192,7 @@ class Assassinate(QueuedTargetAction):
 class Coup(QueuedTargetAction):
 
     def resolve(self) -> StateInterface:
-        self._data.active_player.removeCash(COUP_COST)
-        return mutiny.states.reveal.resolve_reveal(data=self._data, player_id=self._target_id, action=self)
+        return mutiny.states.reveal.resolve_reveal(data=self._data, player_id=self._target_id, action=NoOp(self._data))
 
     @property
     def action_name(self) -> ActionEnum:

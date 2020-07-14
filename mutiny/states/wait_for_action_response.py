@@ -1,12 +1,13 @@
 from typing import Dict
 
-from mutiny.actions import QueuedAction, NoOp
+from mutiny.actions import Assassinate, QueuedAction, NoOp
 from mutiny.exceptions import InvalidMove
 from mutiny.game_enum import StateEnum, RoleEnum, ActionEnum
 from mutiny.game_data import GameData
 from mutiny.state_interface import StateInterface
 from mutiny.states.reveal import resolve_reveal
 from mutiny.states.wait_for_block_response import WaitForBlockResponse
+from mutiny.constants import ASSASSINATE_COST
 
 BLOCKING_ROLES = {
     ActionEnum.F_AID: {RoleEnum.DUKE},
@@ -54,6 +55,8 @@ class WaitForActionResponse(StateInterface):
                                   query_block_next=True)
         else:
             # Claimant loses an influence, action does not resolve (except for the initial cost)
+            if isinstance(self._action, Assassinate):
+                self._data.active_player.addCash(ASSASSINATE_COST)
             return resolve_reveal(data=self._data,
                                   player_id=self._data.player_turn,
                                   action=NoOp(self._data))

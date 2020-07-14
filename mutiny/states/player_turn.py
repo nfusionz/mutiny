@@ -46,6 +46,7 @@ class PlayerTurn(StateInterface):
             raise InvalidMove("{} does not have enough cash to assassinate".format(self._data.active_player.name))
 
         queued = Assassinate(self._data, target_id)
+        self._data.active_player.removeCash(ASSASSINATE_COST)
         return WaitForActionResponse(data=self._data, action=queued)
 
     def steal(self, player_id: int, target_id: int) -> StateInterface:
@@ -67,4 +68,5 @@ class PlayerTurn(StateInterface):
         if self._data.active_player.cash < COUP_COST:
             raise InvalidMove("{} does not have enough cash to coup".format(self._data.active_player.name))
 
+        self._data.active_player.removeCash(COUP_COST)
         return Coup(self._data, target_id).resolve()  # Returns reveal state with no action queued

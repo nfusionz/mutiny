@@ -29,7 +29,7 @@ class GameData:
         raise RuntimeError("Game has already ended")
 
     def player_alive(self, player_id: int) -> bool:
-        return self.players[player_id].influence_count > 0
+        return self.players[player_id].alive
 
     @property 
     def active_player(self):
