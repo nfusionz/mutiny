@@ -42,6 +42,7 @@ class GameObject:
         emission["stateId"] - the "time" at which the action taken was relevant
         """
         if emission is None: # NOP
+            # self._state_interface = self._state_interface.noop(player_id)
             return
 
         if not emission["command"]:
@@ -78,14 +79,28 @@ class GameObject:
         if command == CommandEnum.ALLOW:
             self._state_interface = self._state_interface.allow(player_id)
         if command == CommandEnum.BLOCK:
-            blocking_role = RoleEnum(emission["blockingRole"])
+            try:
+                blocking_role = RoleEnum(emission["blockingRole"])
+            except ValueError:
+                # This happens when Benedict tries to block on a state that is blockable
+                # vector_to_emission (see nnio in benedict) assumes that the state is blockable
+                # If not, it will give an UNKNOWN for the blocking role
+                raise InvalidMove("Must block with a valid influence")
+
             self._state_interface = self._state_interface.block(player_id, blocking_role)
         if command == CommandEnum.CHALLENGE:
             self._state_interface = self._state_interface.challenge(player_id)
         if command == CommandEnum.EXCHANGE:
-            influences = tuple(RoleEnum(r) for r in emission["roles"])
+            try:
+                influences = tuple(RoleEnum(r) for r in emission["roles"])
+            except ValueError:
+                raise InvalidMove("Must replace with valid influences")
+
             self._state_interface = self._state_interface.replace(player_id, influences)
         if command == CommandEnum.REVEAL:
-            reveal_role = RoleEnum(emission["role"])
+            try:
+                reveal_role = RoleEnum(emission["role"])
+            except ValueError:
+                raise InvalidMove("Must reveal a valid influence")
             self._state_interface = self._state_interface.reveal(player_id, reveal_role)
 
