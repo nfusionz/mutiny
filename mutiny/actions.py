@@ -189,10 +189,6 @@ class Assassinate(QueuedTargetAction):
     def can_be_blocked(self) -> bool:
         return True
 
-    @property
-    def still_valid(self) -> bool: # calls resolve_reveal; avoid infinite loop
-        return False
-
 
 class Coup(QueuedTargetAction):
 
@@ -212,9 +208,6 @@ class Coup(QueuedTargetAction):
     def can_be_blocked(self) -> bool:
         return False
 
-    @property
-    def still_valid(self) -> bool: # Coup calls resolve_reveal; avoid infinite loop
-        return False
 
 
 class Steal(QueuedTargetAction):

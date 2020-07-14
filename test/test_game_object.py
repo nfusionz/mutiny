@@ -72,7 +72,42 @@ class PlayActionTest(BaseGameObjectTest):
 
         self.assertEqual(self.game._state_interface.__class__, PlayerTurn)
 
-        self.assertEqual(self.game.game_data.players[target].influence_count,2) # target ded
+        self.assertEqual(self.game.game_data.players[target].influence_count,2) # target not ded
+        self.assertEqual(self.game.game_data.players[player_turn].cash, 3) # player doesnt lost money
+        self.assertEqual(self.game.game_data.player_turn, (player_turn + 1) % 6) # it is the next player's turn
+
+    def test_assassin_succeed(self):
+        for i in range(6):
+            player_turn = self.game.game_data.player_turn
+            self.game.command(player_turn, {
+                "command": CommandEnum.ACTION,
+                "action": ActionEnum.INCOME,
+                "stateId": self.game.game_data.state_id,
+            })
+        player_turn = self.game.game_data.player_turn
+        target = (player_turn + 1) % len(self.game.game_data.players)
+        self.game.command(player_turn, {
+            "command" : CommandEnum.ACTION,
+            "action"  : ActionEnum.ASSASSINATE,
+            "target"  : target,
+            "stateId" : self.game.game_data.state_id
+            })
+        for i in range(len(self.game.game_data.players)):
+            if i != player_turn:
+                self.game.command(i,{
+                    "command" : CommandEnum.ALLOW,
+                    "stateId" : self.game.game_data.state_id
+                    })
+        print(self.game._state_interface)
+        self.game.command(target, {
+            "command" : CommandEnum.REVEAL,
+            "role"    : self.game.game_data.players[target].hand[0].role,
+            "stateId" : self.game.game_data.state_id
+            })
+        input()
+        self.assertEqual(self.game._state_interface.__class__, PlayerTurn)
+
+        self.assertEqual(self.game.game_data.players[target].influence_count,1) # target ded
         self.assertEqual(self.game.game_data.players[player_turn].cash, 0) # player lost money
         self.assertEqual(self.game.game_data.player_turn, (player_turn + 1) % 6) # it is the next player's turn
 
@@ -149,24 +184,28 @@ class PlayRandomGameTest(BaseGameObjectTest):
 
     def test_run_through_game(self):
         """A modified version of step() from Benedict"""
-        return
+        #return
         self.dones = {p for p in range(len(self.game.players))}
+        steps=0
         while self.dones:
-            print(self.game.to_dict(None), '\n')
+            steps+=1
+            #print(self.game.to_dict(None), '\n')
             states = []
             for p in range(len(self.game.players)):
                 states.append(GameState.from_dict(self.game.to_dict(p)))
 
             for p in range(len(self.game.players)):
                 if self.game.player_is_done(p):
+                    print(f"removed {p}")  # <- doesn't get called
                     if p in self.dones:
                         self.dones.remove(p)
                 else:
                     turn = random_action(states[p])
-                    print(p, turn, '\n')
+                    #print(p, turn, '\n')
                     self.game.command(p, turn)
-            print(self.dones)
-            print('\n\n')
+            if steps > 1000000:
+                print(f"exitting at {steps} steps, dones={self.dones}")
+                return
 
 # class ActionResponseTest(BaseGameObjectTest):
 #     pass
