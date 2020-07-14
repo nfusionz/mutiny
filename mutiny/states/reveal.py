@@ -27,6 +27,10 @@ def resolve_reveal(*, data: GameData,
                       action=action,
                       query_block_next=query_block_next)
 
+    # Resolve reveal immediately if player has no choice
+    if reveal_player.influence_count > 0:
+        reveal_player.reveal()
+
     # If target has not allowed / blocked action yet
     if action.still_valid and query_block_next and action.can_be_blocked:
         return WaitForBlock(data=data, action=action)
