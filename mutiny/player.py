@@ -72,7 +72,10 @@ class Player:
 
     @property
     def alive(self) -> bool:
-        return self.influence_count > 0
+        if self.hand is None:
+            raise RuntimeError("No influence to count.")
+        return not (self.hand[0].revealed and self.hand[1].revealed)
+        # return self.influence_count > 0
 
     def to_dict(self, player_id=None) -> Dict:
         """
