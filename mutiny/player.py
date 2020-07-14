@@ -85,7 +85,7 @@ class Player:
         d["cash"] = self.cash
         d["influence"] = [
                 {
-                    "role": inf.role.value if has_info else "unknown",
+                    "role": inf.role.value if has_info or inf.revealed else "unknown",
                     "revealed": inf.revealed
                 }
                 for inf in self.hand]
