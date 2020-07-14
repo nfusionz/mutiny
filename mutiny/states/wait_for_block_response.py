@@ -45,7 +45,7 @@ class WaitForBlockResponse(StateInterface):
         if self._data.players[self._blocker_id].hasAliveInfluence(self._block_role):
             self._data.deck.append(self._block_role)
             self._data.shuffle_deck()
-            self._data.players[self._data.player_turn].replace(self._block_role, self._data.deck.pop())
+            self._data.players[self._blocker_id].replace(self._block_role, self._data.deck.pop())
 
             return mutiny.states.reveal.resolve_reveal(data=self._data,
                                                        player_id=player_id,
