@@ -26,7 +26,8 @@ class GameObject:
         return False
 
     def game_is_over(self):
-        return all([self.player_is_done(p) for p in range(len(self.players))])
+        return self.game_data.winner_id is not None
+        # return all([self.player_is_done(p) for p in range(len(self.players))])
 
     def to_dict(self,player_id=None):
         return self._state_interface.to_dict(player_id=player_id)
