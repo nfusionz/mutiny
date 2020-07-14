@@ -30,6 +30,11 @@ class Exchange(StateInterface):
             d["state"]["exchangeOptions"] = [o.value for o in self.exchange_options]
         return d
 
+    def noop(self, player_id: int) -> StateInterface:
+        if player_id == self._data.player_turn:
+            raise InvalidMove(f"Player {player_id} must replace on {self.state_name}")
+        return self
+
     def replace(self, player_id: int, influences: Tuple[RoleEnum, Union[RoleEnum]]) -> StateInterface:
         if player_id != self._data.player_turn:
             raise InvalidMove("Wrong player to exchange")

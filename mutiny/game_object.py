@@ -42,7 +42,7 @@ class GameObject:
         emission["stateId"] - the "time" at which the action taken was relevant
         """
         if emission is None: # NOP
-            # self._state_interface = self._state_interface.noop(player_id)
+            self._state_interface = self._state_interface.noop(player_id)
             return
 
         if not emission["command"]:

@@ -30,6 +30,18 @@ class WaitForActionResponse(StateInterface):
     def state_name(self) -> StateEnum:
         return StateEnum.WAIT_FOR_ACTION_RESPONSE
 
+    def noop(self, player_id: int) -> StateInterface:
+        # If player has not already implicitly allowed
+        if not self._allow[player_id]:
+            print(self.to_dict(player_id))
+            print(self._action)
+            print(self._data.player_turn)
+            print(self._action.action_name)
+            print(self._action.target)
+            print(self._allow)
+            raise InvalidMove(f"Player {player_id} must allow, block, or challenge on {self.state_name}")
+        return self
+
     def to_dict(self, player_id=None) -> Dict:
         d = super().to_dict(player_id)
         d["state"]["action"] = self._action.action_name.value

@@ -20,6 +20,11 @@ class PlayerTurn(StateInterface):
     def state_name(self) -> StateEnum:
         return StateEnum.START_TURN
 
+    def noop(self, player_id: int) -> StateInterface:
+        if player_id == self._data.player_turn:
+            raise InvalidMove(f"Player {player_id} must make a move on {self.state_name}")
+        return self
+
     def income(self, player_id: int) -> StateInterface:
         self._checkTurn(player_id)
         self._checkCoup()

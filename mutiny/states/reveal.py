@@ -74,6 +74,11 @@ class Reveal(StateInterface):
         d["state"]["playerToReveal"] = self._reveal_player.self_id
         return d
 
+    def noop(self, player_id: int) -> StateInterface:
+        if player_id == self._reveal_id:
+            raise InvalidMove(f"Player {player_id} must reveal on {self.state_name}")
+        return self
+
     def reveal(self, player_id: int, influence: RoleEnum) -> StateInterface:
         if player_id != self._reveal_id:
             raise InvalidMove("Wrong player to reveal")
