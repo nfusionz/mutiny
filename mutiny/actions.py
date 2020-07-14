@@ -242,6 +242,7 @@ class Exchange(QueuedAction):
         deck = self._data.deck
         op1 = deck.pop()
         op2 = deck.pop()
+        import mutiny.states.exchange
         return mutiny.states.exchange.Exchange(data=self._data, exchange_options=(op1, op2))
 
     @property
