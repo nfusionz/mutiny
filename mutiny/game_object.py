@@ -17,6 +17,8 @@ class GameObject:
 
     def get_state_id(self):
         return self.game_data.state_id
+    def get_players(self):
+        return self.game_data.players
 
     def player_is_done(self, player_id: int) -> bool:
         if not self.game_data.player_alive(player_id):
