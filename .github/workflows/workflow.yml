@@ -33,6 +33,12 @@ jobs:
         python-version: [3.7, 3.8]
     steps:
     - uses: actions/checkout@v2
+    - name: Checkout Test Dependency Benedict
+      uses: actions/checkout@v2
+      with:
+        repository: jarbus/benedict
+        ssh-key: ${{ secrets.BENEDICT_GITHUB_KEY }}
+        path: benedict
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
@@ -43,6 +49,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
         fi
+        pip install -e benedict
     - name: Test with python-unittest
       run: |
         python -m unittest discover -s test
