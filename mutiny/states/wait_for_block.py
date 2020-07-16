@@ -40,6 +40,13 @@ class WaitForBlock(StateInterface):
     def state_name(self) -> StateEnum:
         return StateEnum.WAIT_FOR_BLOCK
 
+    def noop(self, player_id: int) -> StateInterface:
+        # If player has not already implicitly allowed
+        if not self._allow[player_id] and (self._action.action_name == ActionEnum.F_AID or self._action.target == player_id):
+            # Can only block duke, or block something targeted at you
+            raise InvalidMove(f"Player {player_id} must allow or block on {self.state_name}")
+        return self
+
     def block(self, player_id: int, blocking_role: RoleEnum) -> StateInterface:
         if self._allow[player_id]:
             raise InvalidMove("Player has already implicitly allowed the action")

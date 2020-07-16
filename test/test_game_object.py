@@ -32,7 +32,7 @@ class IncomeTest(BaseGameObjectTest):
 
     def test_income(self):
         player_turn = self.game.game_data.player_turn
-        self.game.command(player_turn, {
+        self.game.command(player_turn, self.game.game_data.state_id, {
             "command": CommandEnum.ACTION,
             "action": ActionEnum.INCOME,
             "stateId": self.game.game_data.state_id,
@@ -49,14 +49,14 @@ class AssassinateTest(BaseGameObjectTest):
         super().setUp()
         for i in range(6):
             player_turn = self.game.game_data.player_turn
-            self.game.command(player_turn, {
+            self.game.command(player_turn, self.game.game_data.state_id, {
                 "command": CommandEnum.ACTION,
                 "action": ActionEnum.INCOME,
                 "stateId": self.game.game_data.state_id,
             })
         player_turn = self.game.game_data.player_turn
         target = (player_turn + 1) % len(self.game.game_data.players)
-        self.game.command(player_turn, {
+        self.game.command(player_turn, self.game.game_data.state_id, {
             "command" : CommandEnum.ACTION,
             "action"  : ActionEnum.ASSASSINATE,
             "target"  : target,
@@ -66,7 +66,7 @@ class AssassinateTest(BaseGameObjectTest):
     def test_assassin_block(self):
         player_turn = self.game.game_data.player_turn
         target = (player_turn + 1) % len(self.game.game_data.players)
-        self.game.command(target, {
+        self.game.command(target, self.game.game_data.state_id, {
             "command" : CommandEnum.BLOCK,
             "blockingRole": RoleEnum.CONTESSA,
             "target"  : target,
@@ -74,7 +74,7 @@ class AssassinateTest(BaseGameObjectTest):
         })
         for i in range(len(self.game.game_data.players)):
             if i != target:
-                self.game.command(i,{
+                self.game.command(i, self.game.game_data.state_id, {
                     "command" : CommandEnum.ALLOW,
                     "stateId" : self.game.game_data.state_id
                 })
@@ -90,11 +90,11 @@ class AssassinateTest(BaseGameObjectTest):
         target = (player_turn + 1) % len(self.game.game_data.players)
         for i in range(len(self.game.game_data.players)):
             if i != player_turn:
-                self.game.command(i,{
+                self.game.command(i, self.game.game_data.state_id, {
                     "command" : CommandEnum.ALLOW,
                     "stateId" : self.game.game_data.state_id
                     })
-        self.game.command(target, {
+        self.game.command(target, self.game.game_data.state_id, {
             "command" : CommandEnum.REVEAL,
             "role"    : self.game.game_data.players[target].hand[0].role,
             "stateId" : self.game.game_data.state_id
@@ -110,7 +110,7 @@ class ForeignAidTest(BaseGameObjectTest):
 
     def test_foreign_aid_allow(self):
         player_turn = self.game.game_data.player_turn
-        self.game.command(player_turn, {
+        self.game.command(player_turn, self.game.game_data.state_id, {
             "command": CommandEnum.ACTION,
             "action": ActionEnum.F_AID,
             "stateId": self.game.game_data.state_id,
@@ -118,7 +118,7 @@ class ForeignAidTest(BaseGameObjectTest):
         other_players = list(range(len(self.game.players)))
         other_players.remove(player_turn)
         for i in other_players:
-            self.game.command(i,{
+            self.game.command(i, self.game.game_data.state_id, {
                 "command" : CommandEnum.ALLOW,
                 "stateId" : self.game.game_data.state_id
                 })
@@ -128,7 +128,7 @@ class ForeignAidTest(BaseGameObjectTest):
 
     def test_foreign_aid_block_allow(self):
         player_turn = self.game.game_data.player_turn
-        self.game.command(player_turn, {
+        self.game.command(player_turn, self.game.game_data.state_id, {
             "command": CommandEnum.ACTION,
             "action": ActionEnum.F_AID,
             "stateId": self.game.game_data.state_id,
@@ -136,7 +136,7 @@ class ForeignAidTest(BaseGameObjectTest):
         other_players = list(range(len(self.game.players)))
         other_players.remove(player_turn)
         old_state_id = self.game.game_data.state_id
-        self.game.command(other_players[0], {
+        self.game.command(other_players[0], self.game.game_data.state_id, {
             "command" : CommandEnum.BLOCK,
             "blockingRole": RoleEnum.DUKE,
             "stateId": self.game.game_data.state_id
@@ -144,7 +144,7 @@ class ForeignAidTest(BaseGameObjectTest):
         for i in list(range(len(self.game.players))):
             if i == other_players[0]:
                 continue
-            self.game.command(i, {
+            self.game.command(i, self.game.game_data.state_id, {
                 "command": CommandEnum.ALLOW,
                 "stateId": self.game.game_data.state_id
                 })
@@ -156,7 +156,7 @@ class ForeignAidTest(BaseGameObjectTest):
 class TaxTest(BaseGameObjectTest):
     def test_tax(self):
         player_turn = self.game.game_data.player_turn
-        self.game.command(player_turn, {
+        self.game.command(player_turn, self.game.game_data.state_id, {
             "command": CommandEnum.ACTION,
             "action": ActionEnum.TAX,
             "stateId": self.game.game_data.state_id,
@@ -164,7 +164,7 @@ class TaxTest(BaseGameObjectTest):
         other_players = list(range(len(self.game.players)))
         other_players.remove(player_turn)
         for i in other_players:
-            self.game.command(i,{
+            self.game.command(i, self.game.game_data.state_id, {
                 "command" : CommandEnum.ALLOW,
                 "stateId" : self.game.game_data.state_id
                 })
@@ -201,7 +201,7 @@ class PlayRandomGameTest(BaseGameObjectTest):
                 else:
                     turn = random_action(states[p])
                     # print(p, turn, '\n')
-                    self.game.command(p, turn)
+                    self.game.command(p, states[p].stateId, turn)
             if steps > 1000000:
                 # print(f"exitting at {steps} steps, dones={self.dones}")
                 return

@@ -1,9 +1,10 @@
-from typing import List
+from typing import List, Dict
 from mutiny.game_enum import CommandEnum, ActionEnum, RoleEnum
 from mutiny.game_data import GameData
 from mutiny.player import Player
 from mutiny.exceptions import InvalidMove
 
+DEBUG_LOG = False
 
 class GameObject:
     "Object to hold game state and control flow of game states"
@@ -37,22 +38,22 @@ class GameObject:
     def reset(self):
         self._state_interface = self._state_interface.reset()
 
-    def command(self, player_id, emission):
+    def command(self, player_id: int, state_id: int, emission: Dict):
         """
         player_id - the player trying to take the action
         emission - a treason style command as a dictionary
         emission["stateId"] - the "time" at which the action taken was relevant
         """
+        # check for out of date state id
+        if self.get_state_id() != state_id:
+            return
+
         if emission is None: # NOP
-            # self._state_interface = self._state_interface.noop(player_id)
+            self._state_interface = self._state_interface.noop(player_id)
             return
 
         if not emission["command"]:
             raise RuntimeError
-
-        # check for out of date state id
-        if self.get_state_id() != emission["stateId"]:
-            return
 
         if self.player_is_done(player_id):
             raise InvalidMove("Player cannot take any more actions in current game state.")
@@ -60,7 +61,8 @@ class GameObject:
         command = CommandEnum(emission["command"])
 
         if command == CommandEnum.ACTION:
-            print(f"{player_id} {emission['action']} " + (f"{emission['target']}" if "target" in emission.keys() else ""))
+            if DEBUG_LOG:
+                print(f"{player_id} {emission['action']} " + (f"{emission['target']}" if "target" in emission.keys() else ""))
             action = ActionEnum(emission["action"])
             if action == ActionEnum.INCOME:
                 self._state_interface = self._state_interface.income(player_id)

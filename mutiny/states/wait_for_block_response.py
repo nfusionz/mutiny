@@ -37,6 +37,12 @@ class WaitForBlockResponse(StateInterface):
         d["state"]["blockingRole"] = self._block_role.value
         return d
 
+    def noop(self, player_id: int) -> StateInterface:
+        # If player has not already implicitly allowed
+        if not self._allow[player_id]:
+            raise InvalidMove(f"Player {player_id} must allow or challenge on {self.state_name}")
+        return self
+
     def challenge(self, player_id: int) -> StateInterface:
         if self._allow[player_id]:
             raise InvalidMove("Player has already implicitly allowed the block")

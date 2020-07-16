@@ -45,6 +45,11 @@ class StateInterface(ABC):
         self._data.reset()
         return mutiny.states.player_turn.PlayerTurn(data=self._data)
 
+    @abstractmethod
+    def noop(self, player_id: int) -> "StateInterface":
+        """ For Benedict (The AI). """
+        pass
+
     def income(self, player_id: int) -> "StateInterface":
         raise InvalidMove("Cannot take income on {}".format(self.state_name))
 
