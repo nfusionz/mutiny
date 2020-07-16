@@ -4,6 +4,7 @@ from mutiny.game_data import GameData
 from mutiny.player import Player
 from mutiny.exceptions import InvalidMove
 
+DEBUG_LOG = False
 
 class GameObject:
     "Object to hold game state and control flow of game states"
@@ -60,7 +61,8 @@ class GameObject:
         command = CommandEnum(emission["command"])
 
         if command == CommandEnum.ACTION:
-            print(f"{player_id} {emission['action']} " + (f"{emission['target']}" if "target" in emission.keys() else ""))
+            if DEBUG_LOG:
+                print(f"{player_id} {emission['action']} " + (f"{emission['target']}" if "target" in emission.keys() else ""))
             action = ActionEnum(emission["action"])
             if action == ActionEnum.INCOME:
                 self._state_interface = self._state_interface.income(player_id)
