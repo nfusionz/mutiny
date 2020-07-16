@@ -57,11 +57,11 @@ class Exchange(StateInterface):
 
         # do the actual exchange; put the cards in the hand and shuffle the other cards back into the deck
         new_hand = [player.hand[i] for i in range(2)]
-        j = 0
+        j = 1
         for i in range(2):
             if not player.hand[i].revealed:
                 new_hand[i] = Influence(influences[j], False)
-                j += 1
+                j -= 1
         player.hand = tuple(new_hand)
 
         self._data.deck += removed_cards
