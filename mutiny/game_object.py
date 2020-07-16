@@ -60,6 +60,7 @@ class GameObject:
         command = CommandEnum(emission["command"])
 
         if command == CommandEnum.ACTION:
+            print(f"{player_id} {emission['action']} " + (f"{emission['target']}" if "target" in emission.keys() else ""))
             action = ActionEnum(emission["action"])
             if action == ActionEnum.INCOME:
                 self._state_interface = self._state_interface.income(player_id)
