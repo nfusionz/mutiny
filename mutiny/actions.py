@@ -75,6 +75,10 @@ class QueuedTargetAction(QueuedAction):
         self._target_id = target_id
 
     @property
+    def can_be_blocked(self) -> bool:
+        return self._data.players[self._target_id].alive
+
+    @property
     def target(self) -> Union[int, None]:
         return self._target_id
 
@@ -184,10 +188,6 @@ class Assassinate(QueuedTargetAction):
     def can_be_challenged(self) -> bool:
         return True
 
-    @property
-    def can_be_blocked(self) -> bool:
-        return True
-
 
 class Coup(QueuedTargetAction):
 
@@ -230,8 +230,8 @@ class Steal(QueuedTargetAction):
         return True
 
     @property
-    def can_be_blocked(self) -> bool:
-        return True
+    def still_valid(self) -> bool:
+        return self._data.active_player.alive
 
 
 class Exchange(QueuedAction):
