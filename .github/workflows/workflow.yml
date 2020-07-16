@@ -39,6 +39,7 @@ jobs:
         repository: jarbus/benedict
         ssh-key: ${{ secrets.BENEDICT_GITHUB_KEY }}
         path: benedict
+        ref: pytreason
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
