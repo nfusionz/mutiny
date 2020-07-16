@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 from mutiny.game_enum import CommandEnum, ActionEnum, RoleEnum
 from mutiny.game_data import GameData
 from mutiny.player import Player
@@ -35,22 +35,22 @@ class GameObject:
     def reset(self):
         self._state_interface = self._state_interface.reset()
 
-    def command(self, player_id, emission):
+    def command(self, player_id: int, state_id: int, emission: Dict):
         """
         player_id - the player trying to take the action
         emission - a treason style command as a dictionary
         emission["stateId"] - the "time" at which the action taken was relevant
         """
+        # check for out of date state id
+        if self.get_state_id() != state_id:
+            return
+
         if emission is None: # NOP
             self._state_interface = self._state_interface.noop(player_id)
             return
 
         if not emission["command"]:
             raise RuntimeError
-
-        # check for out of date state id
-        if self.get_state_id() != emission["stateId"]:
-            return
 
         if self.player_is_done(player_id):
             raise InvalidMove("Player cannot take any more actions in current game state.")
