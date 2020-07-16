@@ -10,9 +10,6 @@ from mutiny.states.wait_for_action_response import WaitForActionResponse
 from mutiny.states.wait_for_block import WaitForBlock
 from mutiny.states.wait_for_block_response import WaitForBlockResponse
 
-from benedict.agents.RandomAgent import random_action
-from benedict.GameState import GameState
-
 
 class TestExchange(unittest.TestCase):
 

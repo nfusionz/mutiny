@@ -1,6 +1,7 @@
 import unittest
 
 from mutiny.game_object import GameObject
+from mutiny.player import *
 from mutiny.game_enum import CommandEnum, ActionEnum, RoleEnum
 
 from mutiny.states.exchange import Exchange
@@ -171,6 +172,107 @@ class TaxTest(BaseGameObjectTest):
         self.assertEqual(self.game._state_interface.__class__, PlayerTurn)
         self.assertEqual(self.game.game_data.players[player_turn].cash, 5) # player got their money
         self.assertEqual(self.game.game_data.player_turn, (player_turn + 1) % 6) # it is the next player's turn
+
+
+class ExchangeTest(BaseGameObjectTest):
+    def test_exchange(self):
+        player_turn = self.game.game_data.player_turn
+        self.game.game_data.players[player_turn].hand = (
+            Influence(RoleEnum.AMBASSADOR, False),
+            Influence(RoleEnum.AMBASSADOR, False)
+        )
+        self.game.command(player_turn, {
+            "command": CommandEnum.ACTION,
+            "action": ActionEnum.EXCHANGE,
+            "stateId": self.game.game_data.state_id,
+        })
+        for p in range(6):
+            if p == player_turn: continue
+            self.game.command(p, {
+                "command": CommandEnum.ALLOW,
+                "stateId": self.game.game_data.state_id
+            })
+        self.game._state_interface.exchange_options = (RoleEnum.DUKE, RoleEnum.CAPTAIN)
+        self.game.command(player_turn, {
+            "command": CommandEnum.EXCHANGE,
+            "roles": ["ambassador", "duke"],
+            "stateId": self.game.game_data.state_id
+
+        })
+        self.assertIsInstance(self.game._state_interface, PlayerTurn)
+        self.assertEqual(self.game.game_data.players[player_turn].hand[0], Influence(RoleEnum.AMBASSADOR, False))
+        self.assertEqual(self.game.game_data.players[player_turn].hand[1], Influence(RoleEnum.DUKE, False))
+
+    def test_exchange_one_influence(self):
+        player_turn = self.game.game_data.player_turn
+        # first ambassador is revealed; exchange should replace the second
+        self.game.game_data.players[player_turn].hand = (
+            Influence(RoleEnum.AMBASSADOR, True),
+            Influence(RoleEnum.AMBASSADOR, False)
+        )
+        self.game.command(player_turn, {
+            "command": CommandEnum.ACTION,
+            "action": ActionEnum.EXCHANGE,
+            "stateId": self.game.game_data.state_id,
+        })
+        for p in range(6):
+            if p == player_turn: continue
+            self.game.command(p, {
+                "command": CommandEnum.ALLOW,
+                "stateId": self.game.game_data.state_id
+            })
+        self.game._state_interface.exchange_options = (RoleEnum.DUKE, RoleEnum.CAPTAIN)
+        self.game.command(player_turn, {
+            "command": CommandEnum.EXCHANGE,
+            "roles": ["duke"],
+            "stateId": self.game.game_data.state_id
+        })
+        self.assertIsInstance(self.game._state_interface, PlayerTurn)
+        self.assertEqual(self.game.game_data.players[player_turn].hand[0], Influence(RoleEnum.AMBASSADOR, True))
+        self.assertEqual(self.game.game_data.players[player_turn].hand[1], Influence(RoleEnum.DUKE, False))
+
+    def test_exchange_after_replace(self):
+        """
+        player whose turn it is tries to exchange with ambassador
+        next player calls them out and gets eliminated
+        player whose turn it is gets a replacement card (probably captain), then does an exchange
+        """
+        player_turn = self.game.game_data.player_turn
+        self.game.game_data.deck = [RoleEnum.CAPTAIN, RoleEnum.CAPTAIN, RoleEnum.CAPTAIN]
+        self.game.game_data.players[player_turn].hand = (
+            Influence(RoleEnum.AMBASSADOR, False),
+            Influence(RoleEnum.DUKE, False)
+        )
+        self.game.game_data.players[(player_turn+1)%6].hand = (
+            Influence(RoleEnum.DUKE, False),
+            Influence(RoleEnum.DUKE, True)
+        )
+        self.game.command(player_turn, {
+            "command": CommandEnum.ACTION,
+            "action": ActionEnum.EXCHANGE,
+            "stateId": self.game.game_data.state_id,
+        })
+        self.game.command((player_turn+1)%6, {
+            "command": CommandEnum.CHALLENGE,
+            "stateId": self.game.game_data.state_id
+        })
+        # player at this point, the player's ambassador has been replaced
+        # the ambassador could be in the deck, in the exchange options, or (be the only card) in the deck
+        # keep track of where the ambassador went
+        self.assertIn(RoleEnum.AMBASSADOR, 
+                list(self.game._state_interface.exchange_options) + \
+                [self.game.game_data.active_player.hand[0].role] + \
+                self.game.game_data.deck
+        )
+        self.assertEqual(self.game.game_data.players[player_turn].hand[1], Influence(RoleEnum.DUKE, False))
+        # regardless, we can fill our hand with captains
+        self.game.command(player_turn, {
+            "command": CommandEnum.EXCHANGE,
+            "roles": ["captain", "captain"],
+            "stateId": self.game.game_data.state_id,
+        })
+        self.assertEqual(self.game.game_data.players[player_turn].hand[0], Influence(RoleEnum.CAPTAIN, False))
+        self.assertEqual(self.game.game_data.players[player_turn].hand[1], Influence(RoleEnum.CAPTAIN, False))
 
 
 # TODO: test more actions in more scenarios 
