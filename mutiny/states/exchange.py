@@ -27,7 +27,8 @@ class Exchange(StateInterface):
         d = super().to_dict(player_id)
         d["state"]["action"] = ActionEnum.EXCHANGE.value
         if player_id in [None, self._data.player_turn]:
-            d["state"]["exchangeOptions"] = [o.value for o in self.exchange_options]
+            print("exchange.py",[o.value for o in self.exchange_options])
+            d["state"]["exchangeOptions"] = [o.value for o in self.exchange_options] + [o.role.value for o in self._data.active_player.hand if not o.revealed]
         return d
 
     def noop(self, player_id: int) -> StateInterface:
