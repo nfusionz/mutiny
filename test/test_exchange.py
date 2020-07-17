@@ -19,7 +19,7 @@ class TestExchange(unittest.TestCase):
         self.game.reset()
 
         player_turn = self.game.game_data.player_turn
-        self.game.command(player_turn, {
+        self.game.command(player_turn, self.game.game_data.state_id, {
             "command": CommandEnum.ACTION,
             "action": ActionEnum.EXCHANGE,
             "stateId": self.game.game_data.state_id,
@@ -27,13 +27,13 @@ class TestExchange(unittest.TestCase):
         other_players = list(range(len(self.game.players)))
         other_players.remove(player_turn)
         for i in other_players:
-            self.game.command(i,{
+            self.game.command(i, self.game.game_data.state_id, {
                 "command" : CommandEnum.ALLOW,
                 "stateId" : self.game.game_data.state_id
                 })
 
         self.assertEqual(self.game._state_interface.__class__, Exchange)
-        self.game.command(player_turn,{
+        self.game.command(player_turn, self.game.game_data.state_id, {
                 "command" : CommandEnum.EXCHANGE,
                 "roles":  [i.role for i in self.game.game_data.players[player_turn].hand],
                 "stateId" : self.game.game_data.state_id
@@ -49,7 +49,7 @@ class TestExchange(unittest.TestCase):
         self.game.reset()
 
         player_turn = self.game.game_data.player_turn
-        self.game.command(player_turn, {
+        self.game.command(player_turn, self.game.game_data.state_id, {
             "command": CommandEnum.ACTION,
             "action": ActionEnum.EXCHANGE,
             "stateId": self.game.game_data.state_id,
@@ -57,13 +57,13 @@ class TestExchange(unittest.TestCase):
         other_players = list(range(len(self.game.players)))
         other_players.remove(player_turn)
         for i in other_players:
-            self.game.command(i,{
+            self.game.command(i, self.game.game_data.state_id, {
                 "command" : CommandEnum.ALLOW,
                 "stateId" : self.game.game_data.state_id
                 })
 
         self.assertEqual(self.game._state_interface.__class__, Exchange)
-        self.game.command(player_turn,{
+        self.game.command(player_turn, self.game.game_data.state_id, {
                 "command" : CommandEnum.EXCHANGE,
                 "roles":  [i.value for i in self.game._state_interface.exchange_options],
                 "stateId" : self.game.game_data.state_id
@@ -80,7 +80,7 @@ class TestExchange(unittest.TestCase):
 
         player_turn = self.game.game_data.player_turn
         self.game.game_data.players[player_turn].hand[0].revealed = True
-        self.game.command(player_turn, {
+        self.game.command(player_turn, self.game.game_data.state_id, {
             "command": CommandEnum.ACTION,
             "action": ActionEnum.EXCHANGE,
             "stateId": self.game.game_data.state_id,
@@ -88,13 +88,13 @@ class TestExchange(unittest.TestCase):
         other_players = list(range(len(self.game.players)))
         other_players.remove(player_turn)
         for i in other_players:
-            self.game.command(i,{
+            self.game.command(i, self.game.game_data.state_id, {
                 "command" : CommandEnum.ALLOW,
                 "stateId" : self.game.game_data.state_id
                 })
 
         self.assertEqual(self.game._state_interface.__class__, Exchange)
-        self.game.command(player_turn,{
+        self.game.command(player_turn, self.game.game_data.state_id, {
                 "command" : CommandEnum.EXCHANGE,
                 "roles":  self.game._state_interface.exchange_options[0:1],
                 "stateId" : self.game.game_data.state_id

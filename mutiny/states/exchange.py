@@ -27,7 +27,8 @@ class Exchange(StateInterface):
         d = super().to_dict(player_id)
         d["state"]["action"] = ActionEnum.EXCHANGE.value
         if player_id in [None, self._data.player_turn]:
-            d["state"]["exchangeOptions"] = [o.value for o in self.exchange_options]
+            print("exchange.py",[o.value for o in self.exchange_options])
+            d["state"]["exchangeOptions"] = [o.value for o in self.exchange_options] + [o.role.value for o in self._data.active_player.hand if not o.revealed]
         return d
 
     def noop(self, player_id: int) -> StateInterface:
@@ -57,11 +58,11 @@ class Exchange(StateInterface):
 
         # do the actual exchange; put the cards in the hand and shuffle the other cards back into the deck
         new_hand = [player.hand[i] for i in range(2)]
-        j = 0
+        j = len(influences)-1
         for i in range(2):
             if not player.hand[i].revealed:
                 new_hand[i] = Influence(influences[j], False)
-                j += 1
+                j -= 1
         player.hand = tuple(new_hand)
 
         self._data.deck += removed_cards

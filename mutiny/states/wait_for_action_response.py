@@ -33,12 +33,6 @@ class WaitForActionResponse(StateInterface):
     def noop(self, player_id: int) -> StateInterface:
         # If player has not already implicitly allowed
         if not self._allow[player_id]:
-            print(self.to_dict(player_id))
-            print(self._action)
-            print(self._data.player_turn)
-            print(self._action.action_name)
-            print(self._action.target)
-            print(self._allow)
             raise InvalidMove(f"Player {player_id} must allow, block, or challenge on {self.state_name}")
         return self
 
