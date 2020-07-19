@@ -49,16 +49,16 @@ class PlayerTurn(StateInterface):
         self._checkCoup()
         if self._data.active_player.cash < ASSASSINATE_COST:
             raise InvalidMove("{} does not have enough cash to assassinate".format(self._data.active_player.name))
+        queued = Assassinate(self._data, target_id) # constructor checks if target is valid
 
-        queued = Assassinate(self._data, target_id)
         self._data.active_player.removeCash(ASSASSINATE_COST)
         return WaitForActionResponse(data=self._data, action=queued)
 
     def steal(self, player_id: int, target_id: int) -> StateInterface:
         self._checkTurn(player_id)
         self._checkCoup()
-
         queued = Steal(self._data, target_id)
+
         return WaitForActionResponse(data=self._data, action=queued)
 
     def exchange(self, player_id: int) -> StateInterface:
@@ -72,6 +72,7 @@ class PlayerTurn(StateInterface):
         self._checkTurn(player_id)
         if self._data.active_player.cash < COUP_COST:
             raise InvalidMove("{} does not have enough cash to coup".format(self._data.active_player.name))
+        action = Coup(self._data, target_id) # constructor checks if target is valid
 
         self._data.active_player.removeCash(COUP_COST)
-        return Coup(self._data, target_id).resolve()  # Returns reveal state with no action queued
+        return action.resolve() # Returns reveal state with no action queued
