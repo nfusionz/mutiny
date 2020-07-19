@@ -64,6 +64,7 @@ class GameObject:
             if DEBUG_LOG:
                 print(f"{player_id} {emission['action']} " + (f"{emission['target']}" if "target" in emission.keys() else ""))
             action = ActionEnum(emission["action"])
+            target_id = emission["target"] if "target" in emission else None
             if action == ActionEnum.INCOME:
                 self._state_interface = self._state_interface.income(player_id)
             if action == ActionEnum.F_AID:
@@ -71,18 +72,17 @@ class GameObject:
             if action == ActionEnum.TAX:
                 self._state_interface = self._state_interface.tax(player_id)
             if action == ActionEnum.ASSASSINATE:
-                target_id = emission["target"]
                 self._state_interface = self._state_interface.assassinate(player_id, target_id)
             if action == ActionEnum.STEAL:
-                target_id = emission["target"]
                 self._state_interface = self._state_interface.steal(player_id, target_id)
             if action == ActionEnum.COUP:
-                target_id = emission["target"]
                 self._state_interface = self._state_interface.coup(player_id, target_id)
             if action == ActionEnum.EXCHANGE:
                 self._state_interface = self._state_interface.exchange(player_id)
+
         if command == CommandEnum.ALLOW:
             self._state_interface = self._state_interface.allow(player_id)
+
         if command == CommandEnum.BLOCK:
             try:
                 blocking_role = RoleEnum(emission["blockingRole"])
@@ -93,8 +93,10 @@ class GameObject:
                 raise InvalidMove("Must block with a valid influence")
 
             self._state_interface = self._state_interface.block(player_id, blocking_role)
+
         if command == CommandEnum.CHALLENGE:
             self._state_interface = self._state_interface.challenge(player_id)
+
         if command == CommandEnum.EXCHANGE:
             try:
                 influences = tuple(RoleEnum(r) for r in emission["roles"])
@@ -102,10 +104,11 @@ class GameObject:
                 raise InvalidMove("Must replace with valid influences")
 
             self._state_interface = self._state_interface.replace(player_id, influences)
+
         if command == CommandEnum.REVEAL:
             try:
                 reveal_role = RoleEnum(emission["role"])
             except ValueError:
                 raise InvalidMove("Must reveal a valid influence")
-            self._state_interface = self._state_interface.reveal(player_id, reveal_role)
 
+            self._state_interface = self._state_interface.reveal(player_id, reveal_role)
