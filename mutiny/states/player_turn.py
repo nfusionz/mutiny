@@ -20,6 +20,11 @@ class PlayerTurn(StateInterface):
     def state_name(self) -> StateEnum:
         return StateEnum.START_TURN
 
+    def can_noop(self, player_id: int) -> bool:
+        if player_id == self._data.player_turn:
+            return False
+        return True
+
     def noop(self, player_id: int) -> StateInterface:
         if player_id == self._data.player_turn:
             raise InvalidMove(f"Player {player_id} must make a move on {self.state_name}")
