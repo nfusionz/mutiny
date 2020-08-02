@@ -30,10 +30,33 @@ class Exchange(StateInterface):
             d["state"]["exchangeOptions"] = [o.value for o in self.exchange_options] + [o.role.value for o in self._data.active_player.hand if not o.revealed]
         return d
 
+    def can_noop(self, player_id: int) -> bool:
+        return player_id != self._data.player_turn
+
     def noop(self, player_id: int) -> StateInterface:
-        if player_id == self._data.player_turn:
+        if not self.can_noop(player_id):
             raise InvalidMove(f"Player {player_id} must replace on {self.state_name}")
         return self
+
+    def can_replace(self, player_id: int, influences: Tuple[RoleENum, Union[RoleEnum]]) -> bool:
+        if player_id != self._data.player_turn:
+            return False
+
+        player = self._data.active_player
+
+        # check that the player is trying to keep the correct number of cards (maintain influence count)
+        cards_to_keep = [role for role in influences]
+        if len(cards_to_keep) != player.influence_count:
+            return False
+
+        # check influences to keep are valid (in the player's hand or in the player's exchange options)
+        cards_can_keep = [influence.role for influence in player.hand if not influence.revealed] + list(self.exchange_options)
+        for role in cards_to_keep:
+            if role not in cards_can_keep:
+                return False
+            cards_can_keep.remove(role)
+
+        return True
 
     def replace(self, player_id: int, influences: Tuple[RoleEnum, Union[RoleEnum]]) -> StateInterface:
         if player_id != self._data.player_turn:

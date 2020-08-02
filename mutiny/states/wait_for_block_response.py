@@ -37,11 +37,17 @@ class WaitForBlockResponse(StateInterface):
         d["state"]["blockingRole"] = self._block_role.value
         return d
 
+    def can_noop(self, player_id: int) -> bool:
+        return self._allow[player_id]
+
     def noop(self, player_id: int) -> StateInterface:
         # If player has not already implicitly allowed
         if not self._allow[player_id]:
             raise InvalidMove(f"Player {player_id} must allow or challenge on {self.state_name}")
         return self
+
+    def can_challenge(self, player_id: int) -> bool:
+        return not self._allow[player_id]
 
     def challenge(self, player_id: int) -> StateInterface:
         if self._allow[player_id]:
@@ -60,6 +66,9 @@ class WaitForBlockResponse(StateInterface):
             return mutiny.states.reveal.resolve_reveal(data=self._data,
                                                        player_id=self._blocker_id,
                                                        action=self._action)
+
+    def can_allow(self, player_id: int) -> bool:
+        return not self._allow[player_id]
 
     def allow(self, player_id: int) -> StateInterface:
         # This is an invalid move because the blocker (from the NN) is able to allow his own block
