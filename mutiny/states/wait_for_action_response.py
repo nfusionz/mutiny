@@ -104,7 +104,7 @@ class WaitForActionResponse(StateInterface):
                                     block_role=blocking_role)
 
     def can_allow(self, player_id: int) -> bool:
-        return not self._allow[player_id]:
+        return not self._allow[player_id]
 
     def allow(self, player_id: int) -> StateInterface:
         if self._allow[player_id]:

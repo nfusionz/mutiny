@@ -38,7 +38,7 @@ class Exchange(StateInterface):
             raise InvalidMove(f"Player {player_id} must replace on {self.state_name}")
         return self
 
-    def can_replace(self, player_id: int, influences: Tuple[RoleENum, Union[RoleEnum]]) -> bool:
+    def can_replace(self, player_id: int, influences: Tuple[RoleEnum, Union[RoleEnum]]) -> bool:
         if player_id != self._data.player_turn:
             return False
 

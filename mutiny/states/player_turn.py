@@ -37,7 +37,7 @@ class PlayerTurn(StateInterface):
         return StateEnum.START_TURN
 
     def can_noop(self, player_id: int) -> bool:
-        return not self._is_turn(player_id):
+        return not self._is_turn(player_id)
 
     def noop(self, player_id: int) -> StateInterface:
         if not self.can_noop(player_id):
