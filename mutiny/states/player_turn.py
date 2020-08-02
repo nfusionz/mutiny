@@ -8,32 +8,52 @@ from mutiny.constants import COUP_COST, ASSASSINATE_COST
 
 class PlayerTurn(StateInterface):
 
+    # The following pairs of functions both check for the same things
+    # however the bottom two raise an exception
+
+    def _is_turn(self, player_id: int):
+        return self._data.player_turn == player_id
+
+    def _must_coup(self) -> bool:
+        return self._data.active_player.must_coup
+
+    def can_make_non_coup(self, player_id: int):
+        if not self._is_turn(player_id) or self._must_coup():
+            return False
+        return True
+
     def _checkTurn(self, player_id: int) -> None:
-        if self._data.player_turn != player_id:
+        if not self._is_turn(player_id):
             raise InvalidMove("Not {}'s turn".format(self._data.players[player_id].name))
 
     def _checkCoup(self) -> None:
-        if self._data.active_player.must_coup:
+        if self._must_coup():
             raise InvalidMove("{} must coup".format(self._data.active_player.name))
+
+
 
     @property
     def state_name(self) -> StateEnum:
         return StateEnum.START_TURN
 
     def can_noop(self, player_id: int) -> bool:
-        if player_id == self._data.player_turn:
-            return False
-        return True
+        return not self._is_turn(player_id):
 
     def noop(self, player_id: int) -> StateInterface:
-        if player_id == self._data.player_turn:
+        if not self.can_noop(player_id):
             raise InvalidMove(f"Player {player_id} must make a move on {self.state_name}")
         return self
+
+    def can_income(self, player_id: int) -> bool:
+        return can_make_non_coup(player_id)
 
     def income(self, player_id: int) -> StateInterface:
         self._checkTurn(player_id)
         self._checkCoup()
         return Income(self._data).resolve()
+
+    def can_f_aid(self, player_id: int) -> bool:
+        return can_make_non_coup(player_id)
 
     def f_aid(self, player_id: int) -> StateInterface:
         self._checkTurn(player_id)
@@ -42,12 +62,18 @@ class PlayerTurn(StateInterface):
         queued = ForeignAid(self._data)
         return WaitForActionResponse(data=self._data, action=queued)  # no action role used for fAid
 
+    def can_tax(self, player_id: int) -> bool:
+        return can_make_non_coup(player_id)
+
     def tax(self, player_id: int) -> StateInterface:
         self._checkTurn(player_id)
         self._checkCoup()
 
         queued = Tax(self._data)
         return WaitForActionResponse(data=self._data, action=queued)
+
+    def can_assassinate(self, player_id: int, target_id: int) -> bool:
+        return can_make_non_coup(player_id) and self._data.active_player.cash >= ASSASSINATE_COST
 
     def assassinate(self, player_id: int, target_id: int) -> StateInterface:
         self._checkTurn(player_id)
@@ -59,6 +85,9 @@ class PlayerTurn(StateInterface):
         self._data.active_player.removeCash(ASSASSINATE_COST)
         return WaitForActionResponse(data=self._data, action=queued)
 
+    def can_steal(self, player_id: int, target_id: int) -> bool:
+        return can_make_non_coup(player_id)
+
     def steal(self, player_id: int, target_id: int) -> StateInterface:
         self._checkTurn(player_id)
         self._checkCoup()
@@ -66,12 +95,20 @@ class PlayerTurn(StateInterface):
 
         return WaitForActionResponse(data=self._data, action=queued)
 
+    def can_exchange(self, player_id: int) -> bool:
+        return can_make_non_coup(player_id)
+
     def exchange(self, player_id: int) -> StateInterface:
         self._checkTurn(player_id)
         self._checkCoup()
 
         queued = Exchange(self._data)
         return WaitForActionResponse(data=self._data, action=queued)
+
+
+    def can_coup(self, player_id: int, target_id: int) -> bool:
+        return can_make_non_coup(player_id) and self._data.active_player.cash >= COUP_COST
+
 
     def coup(self, player_id: int, target_id: int) -> StateInterface:
         self._checkTurn(player_id)
