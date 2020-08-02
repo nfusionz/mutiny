@@ -120,7 +120,7 @@ class StateInterface(ABC):
     def reveal(self, player_id: int, influence: RoleEnum) -> "StateInterface":
         raise InvalidMove("Cannot reveal on {}".format(self.state_name))
 
-    def replace(self, player_id: int, influences: Tuple[RoleEnum, Union[RoleEnum, None]]) -> bool:
+    def can_replace(self, player_id: int, influences: Tuple[RoleEnum, Union[RoleEnum, None]]) -> bool:
         return False
 
     def replace(self, player_id: int, influences: Tuple[RoleEnum, Union[RoleEnum, None]]) -> "StateInterface":
