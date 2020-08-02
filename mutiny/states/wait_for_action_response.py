@@ -43,6 +43,13 @@ class WaitForActionResponse(StateInterface):
             d["state"]["target"] = self._action.target
         return d
 
+    def can_challenge(self, player_id: int) -> bool:
+        if self.allow[player_id]:
+            return False
+        if not self._action.can_be_challenged:
+            return False
+        return True
+
     def challenge(self, player_id: int) -> StateInterface:
         if self._allow[player_id]:
             raise InvalidMove("Player has implicitly allowed the action")
@@ -67,6 +74,18 @@ class WaitForActionResponse(StateInterface):
                                   player_id=self._data.player_turn,
                                   action=NoOp(self._data))
 
+    def can_block(self, player_id: int, blocking_role: RoleEnum) -> bool:
+        # Note this is twice duplicated code :) im sorry
+        if not self._action.can_be_blocked:
+            return False
+        if self._allow[player_id]:
+            return False
+        if blocking_role not in BLOCKING_ROLES[self._action.action_name]:
+            return False
+        if blocking_role != RoleEnum.DUKE and player_id != self._action.target:
+            return False
+        return True
+
     def block(self, player_id: int, blocking_role: RoleEnum) -> StateInterface:
         if not self._action.can_be_blocked:
             raise InvalidMove("Current action can not be blocked")
@@ -83,6 +102,9 @@ class WaitForActionResponse(StateInterface):
                                     action=self._action,
                                     blocker_id=player_id,
                                     block_role=blocking_role)
+
+    def can_allow(self, player_id: int) -> bool:
+        return not self._allow[player_id]:
 
     def allow(self, player_id: int) -> StateInterface:
         if self._allow[player_id]:
