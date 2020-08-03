@@ -44,7 +44,7 @@ class WaitForActionResponse(StateInterface):
         return d
 
     def can_challenge(self, player_id: int) -> bool:
-        if self.allow[player_id]:
+        if self._allow[player_id]:
             return False
         if not self._action.can_be_challenged:
             return False

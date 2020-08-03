@@ -45,7 +45,6 @@ class StateInterface(ABC):
         self._data.reset()
         return mutiny.states.player_turn.PlayerTurn(data=self._data)
 
-    @abstractmethod
     def can_noop(self, player_id: int) -> bool:
         return False
 
@@ -77,7 +76,7 @@ class StateInterface(ABC):
     def assassinate(self, player_id: int, target_id: int) -> "StateInterface":
         raise InvalidMove("Cannot assassinate on {}".format(self.state_name))
 
-    def can_steal(self, player_id: int) -> bool:
+    def can_steal(self, player_id: int, target_id: int) -> bool:
         return False
 
     def steal(self, player_id: int, target_id: int) -> "StateInterface":
