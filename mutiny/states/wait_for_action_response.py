@@ -30,6 +30,9 @@ class WaitForActionResponse(StateInterface):
     def state_name(self) -> StateEnum:
         return StateEnum.WAIT_FOR_ACTION_RESPONSE
 
+    def can_noop(self, player_id: int) -> bool:
+        return self._data.player_turn == player_id
+        
     def noop(self, player_id: int) -> StateInterface:
         # If player has not already implicitly allowed
         if not self._allow[player_id]:
