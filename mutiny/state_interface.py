@@ -8,7 +8,7 @@ from mutiny.exceptions import InvalidMove
 INVALID_TRANSITION = "Cannot %s on %s"
 
 class StateInterface(ABC):
-    """ Superclass for ways that GameData error_on be modified.
+    """ Superclass for ways that GameData can be modified.
     Extend this class to implement game logic. All methods
     that modify game data return a (possibly new) StateInterface
     that wraps it. Essentially a state machine. """
