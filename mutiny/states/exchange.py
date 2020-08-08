@@ -62,7 +62,7 @@ class Exchange(StateInterface):
 
     def replace(self, player_id: int, influences: Tuple[RoleEnum, Union[RoleEnum]]) -> StateInterface:
         if (error := self.error_on_replace(player_id, influences)):
-            raise InvalideMove(error)
+            raise InvalidMove(error)
 
         player = self._data.active_player
 
