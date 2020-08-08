@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Union
 
 from mutiny.actions import QueuedAction, QueuedTargetAction
 from mutiny.game_enum import ActionEnum, StateEnum, RoleEnum
@@ -40,49 +40,47 @@ class WaitForBlock(StateInterface):
     def state_name(self) -> StateEnum:
         return StateEnum.WAIT_FOR_BLOCK
 
-    def can_noop(self, player_id: int) -> bool:
+    def error_on_noop(self, player_id: int) -> Union[None, str]:
         # If player has not already implicitly allowed
         if not self._allow[player_id] and (self._action.action_name == ActionEnum.F_AID or self._action.target == player_id):
             # Can only block duke, or block something targeted at you
-            return False
-        return True
+            return f"Player {player_id} must allow or block on {self.state_name}"
+        return None
 
     def noop(self, player_id: int) -> StateInterface:
-        if not self.can_noop(player_id):
-            raise InvalidMove(f"Player {player_id} must allow or block on {self.state_name}")
+        if (error := self.error_on_noop(player_id)):
+            raise InvalidMove(error)
         return self
 
-    def can_block(self, player_id: int, blocking_role: RoleEnum) -> bool:
+    def error_on_block(self, player_id: int, blocking_role: RoleEnum) -> Union[None, str]:
         if self._allow[player_id]:
-            return False
+            return "Player has already implicitly allowed the action"
         if blocking_role not in BLOCKING_ROLES[self._action.action_name]:
-            return False
+            return "Cannot block {} with {}".format(self._action.action_name, blocking_role)
         if blocking_role != RoleEnum.DUKE and player_id != self._action.target:
-            return False
-        return True
+            return "Cannot block if you are not the target"
+        return None
 
     def block(self, player_id: int, blocking_role: RoleEnum) -> StateInterface:
-        if self._allow[player_id]:
-            raise InvalidMove("Player has already implicitly allowed the action")
-        if blocking_role not in BLOCKING_ROLES[self._action.action_name]:
-            raise InvalidMove("Cannot block {} with {}".format(self._action.action_name, blocking_role))
-        if blocking_role != RoleEnum.DUKE and player_id != self._action.target:
-            raise InvalidMove("Cannot block if you are not the target")
+        if (error := self.error_on_block(player_id, blocking_role)):
+            raise InvalidMove(error)
 
         return WaitForBlockResponse(data=self._data,
                                     action=self._action,
                                     blocker_id=player_id,
                                     block_role=blocking_role)
 
-    def can_allow(self, player_id: int) -> bool:
-        return not self._allow[player_id]
+    def error_on_allow(self, player_id: int) -> Union[None, str]:
+        if self._allow[player_id]:
+            return "Player has already implicitly allowed the action"
+        return None
 
     def allow(self, player_id: int) -> StateInterface:
-        if self._allow[player_id]:
-            raise InvalidMove("Player has already implicitly allowed the action")
-        self._allow[player_id] = True
+        if (error := self.error_on_allow(player_id)):
+            raise InvalidMove(error)
 
         # targeted actions only require permission of the target after a challenge
+        self._allow[player_id] = True
         if isinstance(self._action, QueuedTargetAction) and self._allow[self._action.target]:
             return self._action.resolve()
         if all(self._allow):

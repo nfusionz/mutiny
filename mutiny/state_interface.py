@@ -5,9 +5,10 @@ from mutiny.game_data import GameData
 from mutiny.game_enum import StateEnum, RoleEnum
 from mutiny.exceptions import InvalidMove
 
+INVALID_TRANSITION = "Cannot %s on %s"
 
 class StateInterface(ABC):
-    """ Superclass for ways that GameData can be modified.
+    """ Superclass for ways that GameData error_on be modified.
     Extend this class to implement game logic. All methods
     that modify game data return a (possibly new) StateInterface
     that wraps it. Essentially a state machine. """
@@ -45,82 +46,82 @@ class StateInterface(ABC):
         self._data.reset()
         return mutiny.states.player_turn.PlayerTurn(data=self._data)
 
-    def can_noop(self, player_id: int) -> bool:
-        return False
+    def error_on_noop(self, player_id: int) -> Union[None, str]:
+        return INVALID_TRANSITION % ("noop", self.state_name)
 
     def noop(self, player_id: int) -> "StateInterface":
         """ For Benedict (The AI). """
-        pass
+        raise InvalidMove(self.error_on_noop(player_id))
 
-    def can_income(self, player_id: int) -> bool:
-        return False
+    def error_on_income(self, player_id: int) -> Union[None, str]:
+        return INVALID_TRANSITION % ("income", self.state_name)
 
     def income(self, player_id: int) -> "StateInterface":
-        raise InvalidMove("Cannot take income on {}".format(self.state_name))
+        raise InvalidMove(self.error_on_income(player_id))
 
-    def can_faid(self, player_id: int) -> bool:
-        return False
+    def error_on_faid(self, player_id: int) -> Union[None, str]:
+        return INVALID_TRANSITION % ("foreign aid", self.state_name)
 
     def f_aid(self, player_id: int) -> "StateInterface":
-        raise InvalidMove("Cannot take foreign aid on {}".format(self.state_name))
+        raise InvalidMove(self.error_on_faid(player_id))
 
-    def can_tax(self, player_id: int) -> bool:
-        return False
+    def error_on_tax(self, player_id: int) -> Union[None, str]:
+        return INVALID_TRANSITION % ("tax", self.state_name)
 
     def tax(self, player_id: int) -> "StateInterface":
-        raise InvalidMove("Cannot tax on {}".format(self.state_name))
+        raise InvalidMove(self.error_on_tax(player_id))
 
-    def can_assassinate(self, player_id: int, target_id: int) -> bool:
-        return False
+    def error_on_assassinate(self, player_id: int, target_id: int) -> Union[None, str]:
+        return INVALID_TRANSITION % ("assassinate", self.state_name)
 
     def assassinate(self, player_id: int, target_id: int) -> "StateInterface":
-        raise InvalidMove("Cannot assassinate on {}".format(self.state_name))
+        raise InvalidMove(self.error_on_assassinate(player_id))
 
-    def can_steal(self, player_id: int, target_id: int) -> bool:
-        return False
+    def error_on_steal(self, player_id: int, target_id: int) -> Union[None, str]:
+        return INVALID_TRANSITION % ("steal", self.state_name)
 
     def steal(self, player_id: int, target_id: int) -> "StateInterface":
-        raise InvalidMove("Cannot steal on {}".format(self.state_name))
+        raise InvalidMove(self.error_on_steal(player_id))
 
-    def can_coup(self, player_id: int, target_id: int) -> bool:
-        return False
+    def error_on_coup(self, player_id: int, target_id: int) -> Union[None, str]:
+        return INVALID_TRANSITION % ("coup", self.state_name)
 
     def coup(self, player_id: int, target_id: int) -> "StateInterface":
-        raise InvalidMove("Cannot coup on {}".format(self.state_name))
+        raise InvalidMove(self.error_on_coup(player_id))
 
-    def can_exchange(self, player_id: int) -> "StateInterface":
-        return False
+    def error_on_exchange(self, player_id: int) -> "StateInterface":
+        return INVALID_TRANSITION % ("exchange", self.state_name)
 
     def exchange(self, player_id: int) -> "StateInterface":
-        raise InvalidMove("Cannot perform exchange action on {}".format(self.state_name))
+        raise InvalidMove(self.error_on_exchange(player_id))
 
-    def can_challenge(self, player_id: int) -> bool:
-        return False
+    def error_on_challenge(self, player_id: int) -> Union[None, str]:
+        return INVALID_TRANSITION % ("challenge", self.state_name)
 
     def challenge(self, player_id: int) -> "StateInterface":
-        raise InvalidMove("Cannot challenge on {}".format(self.state_name))
+        raise InvalidMove(self.error_on_challenge(player_id))
 
-    def can_block(self, player_id: int, blocking_role: RoleEnum) -> bool:
-        return False
+    def error_on_block(self, player_id: int, blocking_role: RoleEnum) -> Union[None, str]:
+        return INVALID_TRANSITION % ("block", self.state_name)
 
     def block(self, player_id: int, blocking_role: RoleEnum) -> "StateInterface":
-        raise InvalidMove("Cannot block on {}".format(self.state_name))
+        raise InvalidMove(self.error_on_block(player_id))
 
-    def can_allow(self, player_id: int) -> bool:
-        return False
+    def error_on_allow(self, player_id: int) -> Union[None, str]:
+        return INVALID_TRANSITION % ("allow", self.state_name)
 
     def allow(self, player_id: int) -> "StateInterface":
         """ Any form of synchronization should be performed outside of this class. """
-        raise InvalidMove("Cannot allow on {}".format(self.state_name))
+        raise InvalidMove(self.error_on_allow(player_id))
 
-    def can_reveal(self, player_id: int, influence: RoleEnum) -> bool:
-        return False
+    def error_on_reveal(self, player_id: int, influence: RoleEnum) -> Union[None, str]:
+        return INVALID_TRANSITION % ("reveal", self.state_name)
 
     def reveal(self, player_id: int, influence: RoleEnum) -> "StateInterface":
-        raise InvalidMove("Cannot reveal on {}".format(self.state_name))
+        raise InvalidMove(self.error_on_reveal(player_id))
 
-    def can_replace(self, player_id: int, influences: Tuple[RoleEnum, Union[RoleEnum, None]]) -> bool:
-        return False
+    def error_on_replace(self, player_id: int, influences: Tuple[RoleEnum, Union[RoleEnum, None]]) -> Union[None, str]:
+        return INVALID_TRANSITION % ("replace", self.state_name)
 
     def replace(self, player_id: int, influences: Tuple[RoleEnum, Union[RoleEnum, None]]) -> "StateInterface":
-        raise InvalidMove("Cannot replace cards on {}".format(self.state_name))
+        raise InvalidMove(self.error_on_replace(player_id))

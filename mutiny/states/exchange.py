@@ -30,50 +30,46 @@ class Exchange(StateInterface):
             d["state"]["exchangeOptions"] = [o.value for o in self.exchange_options] + [o.role.value for o in self._data.active_player.hand if not o.revealed]
         return d
 
-    def can_noop(self, player_id: int) -> bool:
-        return player_id != self._data.player_turn
+    def error_on_noop(self, player_id: int) -> Union[None, str]:
+        if player_id == self._data.player_turn:
+            return f"Player {player_id} must replace on {self.state_name}"
+        return None
 
     def noop(self, player_id: int) -> StateInterface:
-        if not self.can_noop(player_id):
-            raise InvalidMove(f"Player {player_id} must replace on {self.state_name}")
+        if (error := self.error_on_noop(player_id)):
+            raise InvalidMove(error)
         return self
 
-    def can_replace(self, player_id: int, influences: Tuple[RoleEnum, Union[RoleEnum]]) -> bool:
+    def error_on_replace(self, player_id: int, influences: Tuple[RoleEnum, Union[RoleEnum]]) -> Union[None, str]:
         if player_id != self._data.player_turn:
-            return False
+            return "Wrong player to exchange"
 
         player = self._data.active_player
 
         # check that the player is trying to keep the correct number of cards (maintain influence count)
         cards_to_keep = [role for role in influences]
         if len(cards_to_keep) != player.influence_count:
-            return False
+            return "Player can only keep as many cards as influence they have."
 
         # check influences to keep are valid (in the player's hand or in the player's exchange options)
         cards_can_keep = [influence.role for influence in player.hand if not influence.revealed] + list(self.exchange_options)
         for role in cards_to_keep:
             if role not in cards_can_keep:
-                return False
+                return "Exchange attempt invalid due to role choice."
             cards_can_keep.remove(role)
 
-        return True
+        return None
 
     def replace(self, player_id: int, influences: Tuple[RoleEnum, Union[RoleEnum]]) -> StateInterface:
-        if player_id != self._data.player_turn:
-            raise InvalidMove("Wrong player to exchange")
+        if (error := self.error_on_replace(player_id, influences)):
+            raise InvalideMove(error)
 
         player = self._data.active_player
 
-        # check that the player is trying to keep the correct number of cards (maintain influence count)
         cards_to_keep = [role for role in influences]
-        if len(cards_to_keep) != player.influence_count:
-            raise InvalidMove("Player can only keep as many cards as influence they have.")
-
-        # check influences to keep are valid (in the player's hand or in the player's exchange options)
         cards_can_keep = [influence.role for influence in player.hand if not influence.revealed] + list(self.exchange_options)
+
         for role in cards_to_keep:
-            if role not in cards_can_keep:
-                raise InvalidMove("Exchange attempt invalid due to role choice.")
             cards_can_keep.remove(role)
 
         removed_cards = cards_can_keep # the cards the player chose not to keep

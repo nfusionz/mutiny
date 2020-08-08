@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Union
 
 from mutiny.game_enum import StateEnum, RoleEnum
 from mutiny.game_data import GameData
@@ -37,23 +37,27 @@ class WaitForBlockResponse(StateInterface):
         d["state"]["blockingRole"] = self._block_role.value
         return d
 
-    def can_noop(self, player_id: int) -> bool:
-        return self._allow[player_id]
+    def error_on_noop(self, player_id: int) -> Union[None, str]:
+        if not self._allow[player_id]:
+            return f"Player {player_id} must allow or challenge on {self.state_name}"
+        return None
 
     def noop(self, player_id: int) -> StateInterface:
         # If player has not already implicitly allowed
-        if not self._allow[player_id]:
-            raise InvalidMove(f"Player {player_id} must allow or challenge on {self.state_name}")
+        if (error := self.error_on_noop(player_id)):
+            raise InvalidMove(error)
         return self
 
-    def can_challenge(self, player_id: int) -> bool:
-        return not self._allow[player_id]
+    def error_on_challenge(self, player_id: int) -> Union[None, str]:
+        if self._allow[player_id]:
+            return "Player has already implicitly allowed the block"
+        return None
 
     def challenge(self, player_id: int) -> StateInterface:
-        if self._allow[player_id]:
-            raise InvalidMove("Player has already implicitly allowed the block")
+        if (error := self.error_on_challenge(player_id)):
+            raise InvalidMove(error)
 
-        # this is Treason-specific (you can lie about not having the influence in the og game)
+        # this is Treason-specific (you error_on lie about not having the influence in the og game)
         if self._data.players[self._blocker_id].hasAliveInfluence(self._block_role):
             self._data.deck.append(self._block_role)
             self._data.shuffle_deck()
@@ -67,14 +71,17 @@ class WaitForBlockResponse(StateInterface):
                                                        player_id=self._blocker_id,
                                                        action=self._action)
 
-    def can_allow(self, player_id: int) -> bool:
-        return not self._allow[player_id]
-
-    def allow(self, player_id: int) -> StateInterface:
+    def error_on_allow(self, player_id: int) -> Union[None, str]:
         # This is an invalid move because the blocker (from the NN) is able to allow his own block
         # Not a runtime error
         if self._allow[player_id]:
-            raise InvalidMove("Player has already implicitly allowed the block")
+            return "Player has already implicitly allowed the block"
+        return None
+
+    def allow(self, player_id: int) -> StateInterface:
+        if (error := self.error_on_allow(player_id)):
+            raise InvalidMove(error)
+
         self._allow[player_id] = True
         if all(self._allow):
             # Action does not resolve

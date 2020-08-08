@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Union
 
 from mutiny.actions import QueuedAction, NoOp
 from mutiny.game_enum import StateEnum, RoleEnum
@@ -74,26 +74,26 @@ class Reveal(StateInterface):
         d["state"]["playerToReveal"] = self._reveal_player.self_id
         return d
 
-    def can_noop(self, player_id: int) -> bool:
-        return player_id != self._reveal_id
+    def error_on_noop(self, player_id: int) -> Union[None, str]:
+        if player_id == self._reveal_id:
+            return f"Player {player_id} must reveal on {self.state_name}"
+        return None
 
     def noop(self, player_id: int) -> StateInterface:
-        if not self.can_noop(player_id):
-            raise InvalidMove(f"Player {player_id} must reveal on {self.state_name}")
+        if (error := self.error_on_noop(player_id)):
+            raise InvalidMove(error)
         return self
 
-    def can_reveal(self, player_id: int, influence: RoleEnum) -> bool:
+    def error_on_reveal(self, player_id: int, influence: RoleEnum) -> Union[None, str]:
         if player_id != self._reveal_id:
-            return False
+            return "Wrong player to reveal"
         if not self._reveal_player.hasAliveInfluence(influence):
-            return False
-        return True
+            return "Player does not have {}".format(influence)
+        return None
 
     def reveal(self, player_id: int, influence: RoleEnum) -> StateInterface:
-        if player_id != self._reveal_id:
-            raise InvalidMove("Wrong player to reveal")
-        if not self._reveal_player.hasAliveInfluence(influence):
-            raise InvalidMove("Player does not have {}".format(influence))
+        if (error := self.error_on_reveal(player_id, influence)):
+            raise InvalidMove(error)
 
         self._reveal_player.reveal(influence)
         # If target has not allowed / blocked action yet

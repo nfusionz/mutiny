@@ -66,13 +66,17 @@ class QueuedTargetAction(QueuedAction):
 
     def __init__(self, data: GameData, target_id: int):
         super().__init__(data)
-        if not self._data.player_alive(target_id):
-            # Probably don't do this.
-            raise InvalidMove("Target is invalid")
-        if self._data.player_turn == target_id:
-            raise InvalidMove("Can not target yourself")
+        if (error := self.error_on_init(data, target_id)):
+            raise InvalidMove(error)
 
         self._target_id = target_id
+
+    @classmethod
+    def error_on_init(cls, data, target_id):
+        if not data.player_alive(target_id):
+            return "Target is invalid"
+        if data.player_turn == target_id:
+            return "Can not target yourself"
 
     @property
     def can_be_blocked(self) -> bool:
