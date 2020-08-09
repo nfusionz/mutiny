@@ -57,7 +57,7 @@ class WaitForBlockResponse(StateInterface):
         if (error := self.error_on_challenge(player_id)):
             raise InvalidMove(error)
 
-        # this is Treason-specific (you error_on lie about not having the influence in the og game)
+        # this is Treason-specific (you can lie about not having the influence in the og game)
         if self._data.players[self._blocker_id].hasAliveInfluence(self._block_role):
             self._data.deck.append(self._block_role)
             self._data.shuffle_deck()

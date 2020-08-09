@@ -53,7 +53,7 @@ class PlayerTurn(StateInterface):
         return self.error_on_not_coup(player_id)
 
     def f_aid(self, player_id: int) -> StateInterface:
-        if (error := self.error_on_tax(player_id)):
+        if (error := self.error_on_f_aid(player_id)):
             raise InvalidMove(error)
 
         queued = ForeignAid(self._data)
