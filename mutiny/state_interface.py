@@ -75,19 +75,19 @@ class StateInterface(ABC):
         return INVALID_TRANSITION % ("assassinate", self.state_name)
 
     def assassinate(self, player_id: int, target_id: int) -> "StateInterface":
-        raise InvalidMove(self.error_on_assassinate(player_id))
+        raise InvalidMove(self.error_on_assassinate(player_id, target_id))
 
     def error_on_steal(self, player_id: int, target_id: int) -> Union[None, str]:
         return INVALID_TRANSITION % ("steal", self.state_name)
 
     def steal(self, player_id: int, target_id: int) -> "StateInterface":
-        raise InvalidMove(self.error_on_steal(player_id))
+        raise InvalidMove(self.error_on_steal(player_id, target_id))
 
     def error_on_coup(self, player_id: int, target_id: int) -> Union[None, str]:
         return INVALID_TRANSITION % ("coup", self.state_name)
 
     def coup(self, player_id: int, target_id: int) -> "StateInterface":
-        raise InvalidMove(self.error_on_coup(player_id))
+        raise InvalidMove(self.error_on_coup(player_id, target_id))
 
     def error_on_exchange(self, player_id: int) -> "StateInterface":
         return INVALID_TRANSITION % ("exchange", self.state_name)
@@ -105,7 +105,7 @@ class StateInterface(ABC):
         return INVALID_TRANSITION % ("block", self.state_name)
 
     def block(self, player_id: int, blocking_role: RoleEnum) -> "StateInterface":
-        raise InvalidMove(self.error_on_block(player_id))
+        raise InvalidMove(self.error_on_block(player_id, blocking_role))
 
     def error_on_allow(self, player_id: int) -> Union[None, str]:
         return INVALID_TRANSITION % ("allow", self.state_name)
@@ -118,10 +118,10 @@ class StateInterface(ABC):
         return INVALID_TRANSITION % ("reveal", self.state_name)
 
     def reveal(self, player_id: int, influence: RoleEnum) -> "StateInterface":
-        raise InvalidMove(self.error_on_reveal(player_id))
+        raise InvalidMove(self.error_on_reveal(player_id, influence))
 
     def error_on_replace(self, player_id: int, influences: Tuple[RoleEnum, Union[RoleEnum, None]]) -> Union[None, str]:
         return INVALID_TRANSITION % ("replace", self.state_name)
 
     def replace(self, player_id: int, influences: Tuple[RoleEnum, Union[RoleEnum, None]]) -> "StateInterface":
-        raise InvalidMove(self.error_on_replace(player_id))
+        raise InvalidMove(self.error_on_replace(player_id, influences))
