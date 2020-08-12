@@ -247,7 +247,8 @@ class Exchange(QueuedAction):
         op1 = deck.pop()
         op2 = deck.pop()
         import mutiny.states.exchange
-        return mutiny.states.exchange.Exchange(data=self._data, exchange_options=(op1, op2))
+        exchange_options = tuple([inf.role for inf in self._data.active_player.hand if not inf.revealed]+[op1,op2])
+        return mutiny.states.exchange.Exchange(data=self._data, exchange_options=exchange_options)
 
     @property
     def action_name(self) -> ActionEnum:
