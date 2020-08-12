@@ -42,7 +42,6 @@ class Exchange(StateInterface):
 
     def error_on_replace(self, player_id: int, influences: Tuple[RoleEnum, Union[RoleEnum]]) -> Union[None, str]:
         if player_id != self._data.player_turn:
-            print(player_id, self._data.player_turn)
             return "Wrong player to exchange"
 
         player = self._data.active_player
