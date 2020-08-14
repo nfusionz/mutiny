@@ -59,11 +59,11 @@ class StateInterface(ABC):
     def income(self, player_id: int) -> "StateInterface":
         raise InvalidMove(self.error_on_income(player_id))
 
-    def error_on_faid(self, player_id: int) -> Union[None, str]:
+    def error_on_f_aid(self, player_id: int) -> Union[None, str]:
         return INVALID_TRANSITION % ("foreign aid", self.state_name)
 
     def f_aid(self, player_id: int) -> "StateInterface":
-        raise InvalidMove(self.error_on_faid(player_id))
+        raise InvalidMove(self.error_on_f_aid(player_id))
 
     def error_on_tax(self, player_id: int) -> Union[None, str]:
         return INVALID_TRANSITION % ("tax", self.state_name)
