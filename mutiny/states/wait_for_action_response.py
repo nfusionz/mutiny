@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Union
 
 from mutiny.actions import Assassinate, QueuedAction, NoOp
 from mutiny.exceptions import InvalidMove
@@ -30,12 +30,6 @@ class WaitForActionResponse(StateInterface):
     def state_name(self) -> StateEnum:
         return StateEnum.WAIT_FOR_ACTION_RESPONSE
 
-    def noop(self, player_id: int) -> StateInterface:
-        # If player has not already implicitly allowed
-        if not self._allow[player_id]:
-            raise InvalidMove(f"Player {player_id} must allow, block, or challenge on {self.state_name}")
-        return self
-
     def to_dict(self, player_id=None) -> Dict:
         d = super().to_dict(player_id)
         d["state"]["action"] = self._action.action_name.value
@@ -43,11 +37,27 @@ class WaitForActionResponse(StateInterface):
             d["state"]["target"] = self._action.target
         return d
 
-    def challenge(self, player_id: int) -> StateInterface:
+    def error_on_noop(self, player_id: int) -> Union[None, str]:
+        if not self._allow[player_id]:
+            return f"Player {player_id} must allow, block, or challenge on {self.state_name}"
+        return None        
+
+    def noop(self, player_id: int) -> StateInterface:
+        # If player has not already implicitly allowed
+        if (error := self.error_on_noop(player_id)):
+            raise InvalidMove(error)
+        return self
+
+    def error_on_challenge(self, player_id: int) -> Union[None, str]:
         if self._allow[player_id]:
-            raise InvalidMove("Player has implicitly allowed the action")
+            return "Player has already or implicitly allowed the action"
         if not self._action.can_be_challenged:
-            raise InvalidMove("Current action can not be challenged")
+            return "Current action can not be challenged"
+        return None
+
+    def challenge(self, player_id: int) -> StateInterface:
+        if (error := self.error_on_challenge(player_id)):
+            raise InvalidMove(error)
 
         if self._data.players[self._data.player_turn].hasAliveInfluence(self._action.action_role):
             self._data.deck.append(self._action.action_role)
@@ -67,30 +77,39 @@ class WaitForActionResponse(StateInterface):
                                   player_id=self._data.player_turn,
                                   action=NoOp(self._data))
 
-    def block(self, player_id: int, blocking_role: RoleEnum) -> StateInterface:
+    def error_on_block(self, player_id: int, blocking_role: RoleEnum) -> Union[None, str]:
+        # Note this is twice duplicated code :) im sorry
         if not self._action.can_be_blocked:
-            raise InvalidMove("Current action can not be blocked")
-
-        # Note this is duplicated code
+            return "Current action can not be blocked"
         if self._allow[player_id]:
-            raise InvalidMove("Player has already implicitly allowed the action")
+            return "Player has already or implicitly allowed the action"
         if blocking_role not in BLOCKING_ROLES[self._action.action_name]:
-            raise InvalidMove("Cannot block {} with {}".format(self._action.action_name, blocking_role))
+            return "Cannot block {} with {}".format(self._action.action_name, blocking_role)
         if blocking_role != RoleEnum.DUKE and player_id != self._action.target:
-            raise InvalidMove("Cannot block if you are not the target")
+            return "Cannot block if you are not the target"
+        return None
+
+    def block(self, player_id: int, blocking_role: RoleEnum) -> StateInterface:
+        if (error := self.error_on_block(player_id, blocking_role)):
+            raise InvalidMove(error)
 
         return WaitForBlockResponse(data=self._data,
                                     action=self._action,
                                     blocker_id=player_id,
                                     block_role=blocking_role)
 
-    def allow(self, player_id: int) -> StateInterface:
+    def error_on_allow(self, player_id: int) -> Union[None, str]:
         if self._allow[player_id]:
-            raise InvalidMove("Player has already implicitly allowed the action")
-        self._allow[player_id] = True
+            return "Player has already or implicitly allowed the action"
+        return None
+
+    def allow(self, player_id: int) -> StateInterface:
+        if (error := self.error_on_allow(player_id)):
+            raise InvalidMove(error)
 
         # No one has challenged or blocked, so the action resolves
         # Blocks are done on this turn, unless a challenge occurs
+        self._allow[player_id] = True
         if all(self._allow): return self._action.resolve()
         return self
 

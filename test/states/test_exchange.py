@@ -66,9 +66,13 @@ class TestExchange(unittest.TestCase):
                 })
 
         self.assertEqual(self.game._state_interface.__class__, Exchange)
+        new_cards = [role for role in self.game._state_interface.exchange_options]
+        for inf in self.game.game_data.active_player.hand:
+            if not inf.revealed:
+                new_cards.remove(inf.role)
         self.game.command(player_turn, self.game.game_data.state_id, {
                 "command" : CommandEnum.EXCHANGE,
-                "roles":  [i.value for i in self.game._state_interface.exchange_options],
+                "roles":  [card.value for card in new_cards],
                 "stateId" : self.game.game_data.state_id
                 })
 
