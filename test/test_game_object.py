@@ -173,6 +173,26 @@ class TaxTest(BaseGameObjectTest):
         self.assertEqual(self.game.game_data.player_turn, (player_turn + 1) % 6) # it is the next player's turn
 
 
+class StealTest(BaseGameObjectTest):
+    def test_steal(self):
+        player_turn = self.game.game_data.player_turn
+        target = (player_turn + 1) % 6
+        self.game.command(player_turn, self.game.game_data.state_id, {
+            "command": CommandEnum.ACTION,
+            "action": ActionEnum.STEAL,
+            "target": target,
+            "stateId": self.game.game_data.state_id,
+        })
+        self.assertEqual(self.game._state_interface.__class__, WaitForActionResponse)
+        self.game.command(target, self.game.game_data.state_id, {
+            "command": CommandEnum.BLOCK,
+            "blockingRole": RoleEnum.AMBASSADOR,
+            "stateId": self.game.game_data.state_id,
+        })
+        self.assertEqual(self.game._state_interface.__class__, WaitForBlockResponse)
+
+
+
 # TODO: test more actions in more scenarios 
 class MoreActionsTest(BaseGameObjectTest):
     def test_more_actions(self):
