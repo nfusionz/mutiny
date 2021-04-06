@@ -176,6 +176,7 @@ class TaxTest(BaseGameObjectTest):
 class StealTest(BaseGameObjectTest):
     def test_steal(self):
         player_turn = self.game.game_data.player_turn
+        self.game.game_data.active_player.hand[0].role = RoleEnum.CAPTAIN
         target = (player_turn + 1) % 6
         self.game.command(player_turn, self.game.game_data.state_id, {
             "command": CommandEnum.ACTION,
@@ -184,6 +185,17 @@ class StealTest(BaseGameObjectTest):
             "stateId": self.game.game_data.state_id,
         })
         self.assertEqual(self.game._state_interface.__class__, WaitForActionResponse)
+        self.game.command(target, self.game.game_data.state_id, {
+            "command": CommandEnum.CHALLENGE,
+            "stateId": self.game.game_data.state_id,
+        })
+        self.assertEqual(self.game._state_interface.__class__, Reveal)
+        self.game.command(target, self.game.game_data.state_id, {
+            "command": CommandEnum.REVEAL,
+            "role": self.game.game_data.players[target].hand[0].role.value,
+            "stateId": self.game.game_data.state_id,
+        })
+        self.assertEqual(self.game._state_interface.__class__, WaitForBlock)
         self.game.command(target, self.game.game_data.state_id, {
             "command": CommandEnum.BLOCK,
             "blockingRole": RoleEnum.AMBASSADOR,
