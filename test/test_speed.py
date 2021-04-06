@@ -3,7 +3,7 @@ import unittest
 from mutiny.game_object import GameObject
 from mutiny.exceptions import InvalidMove
 
-from benedict.agents.RandomAgent import random_action
+from benedict.utils.RandomAction import random_action
 from benedict.GameState import GameState
 
 
