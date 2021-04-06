@@ -48,17 +48,17 @@ class GameObject:
         if self.get_state_id() != state_id:
             return
 
-        if emission is None: # NOP
+        if not emission or not emission["command"]:
+            raise RuntimeError
+
+        command = CommandEnum(emission["command"])
+
+        if command == CommandEnum.NOOP:
             self._state_interface = self._state_interface.noop(player_id)
             return
 
-        if not emission["command"]:
-            raise RuntimeError
-
         if self.player_is_done(player_id):
             raise InvalidMove("Player cannot take any more actions in current game state.")
-
-        command = CommandEnum(emission["command"])
 
         if command == CommandEnum.ACTION:
             if DEBUG_LOG:

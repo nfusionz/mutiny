@@ -29,6 +29,7 @@ class StateEnum(Enum):
     EXCHANGE = "exchange"  # playerIdx chooses card to pick
 
 class CommandEnum(Enum):
+    NOOP = "noop"  # for when you explicitly want to do nothing
     ACTION = "play-action"
     BLOCK = "block"
     CHALLENGE = "challenge"
