@@ -15,6 +15,10 @@ class GameData:
     deck: Union[List[RoleEnum], None] = None
     winner_id: Union[int, None] = None
 
+    # for use with to_dict
+    __dict_cache_state_id: int = -1 
+    __dict_cache: List[Dict] = None
+
     def next_turn(self):
         """ Probably should not be here. """
         if not self.done:
@@ -49,11 +53,34 @@ class GameData:
         Returns a dictionary representing the game data from the perspective of player_id.
         When player_id is None (unspecified), returns the unobfuscated game data (i.e. all info).
         """
-        return {
-            "stateId": self.state_id,
-            "players": [p.to_dict(player_id) for p in self.players],
-            "playerIdx": player_id
-        }
+        # to avoid making duplicate dictionaries, we cache them and record the state id
+        if self.state_id != self.__dict_cache_state_id:
+            self.__dict_cache_state_id = self.state_id
+            player_dicts = [(p.to_dict(-1),p.to_dict(p.self_id)) for p in self.players]
+            self.__dict_cache = [
+                {
+                    "stateId": self.state_id,
+                    "players": [
+                        player_dicts[p.self_id][int(p.self_id==player.self_id)]
+                        for p in self.players
+                    ],
+                    "playerIdx": player.self_id
+                } 
+            for player in self.players
+            ]
+            # store the full information dictionary in an extra spot at the end of the list
+            self.__dict_cache.append(
+                {
+                    "stateId": self.state_id,
+                    "players": [player_dicts[p.self_id][1] for p in self.players],
+                    "playerIdx": None
+                }
+            )
+
+        if player_id == None:
+            return self.__dict_cache[-1]
+
+        return self.__dict_cache[player_id]
 
     def reset(self) -> None:
         """ Initialize game. """
