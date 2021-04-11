@@ -4,6 +4,7 @@ from mutiny.game_object import GameObject
 from mutiny.exceptions import InvalidMove
 
 from benedict.utils.RandomAction import random_action
+from benedict.GameState import get_states
 from benedict.GameState import GameState
 
 
@@ -17,9 +18,7 @@ class SpeedTest(unittest.TestCase):
             while not game.game_is_over():
                 steps += 1
                 # get observations
-                states = []
-                for p in range(6):
-                    states.append(GameState.from_dict(game.to_dict(p)))
+                states = get_states(game)
                 # act on observations
                 for p in range(6):
                     turn = random_action(states[p]) # random_action knows to NOOP when dead
