@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Union, Tuple, Dict
+from typing import Union, Tuple, Dict, Optional
 
+# from mutiny.actions import QueuedAction
 from mutiny.game_data import GameData
 from mutiny.game_enum import StateEnum, RoleEnum
 from mutiny.exceptions import InvalidMove
@@ -26,6 +27,27 @@ class StateInterface(ABC):
     def state_name(self) -> StateEnum:
         """ Override to give the current StateEnum. """
         pass
+
+    @property
+    def queued_action(self):
+        return None
+
+    @property
+    def exchanges(self) -> Optional[Tuple[RoleEnum, RoleEnum]]:
+        return None
+
+    @property
+    def blocking_role(self) -> Optional[RoleEnum]:
+        return None
+
+    @property
+    def player_to_reveal(self) -> Optional[int]:
+        return None
+
+    @property
+    def target(self) -> Optional[int]:
+        """ This is necessary because target is overloaded to include the blocker for foreign aid. """
+        return None
 
     def to_dict(self, player_id=None) -> Dict:
         """

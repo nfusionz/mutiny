@@ -30,6 +30,14 @@ class WaitForActionResponse(StateInterface):
     def state_name(self) -> StateEnum:
         return StateEnum.WAIT_FOR_ACTION_RESPONSE
 
+    @property
+    def queued_action(self) -> QueuedAction:
+        return self._action
+
+    @property
+    def target(self) -> int:
+        return self._action.target
+
     def to_dict(self, player_id=None) -> Dict:
         d = super().to_dict(player_id)
         d["state"]["action"] = self._action.action_name.value

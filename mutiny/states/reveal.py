@@ -64,6 +64,14 @@ class Reveal(StateInterface):
     def state_name(self) -> StateEnum:
         return StateEnum.REVEAL
 
+    @property
+    def player_to_reveal(self) -> int:
+        return self._reveal_id
+
+    @property
+    def target(self) -> int:
+        return self._action.target
+
     def to_dict(self, player_id=None) -> Dict:
         d = super().to_dict(player_id)
         if not isinstance(self._action, NoOp):

@@ -1,4 +1,4 @@
-from typing import Tuple, Dict, Union
+from typing import Tuple, Dict, Union, Optional
 
 import mutiny.actions
 from mutiny.player import Influence
@@ -22,6 +22,10 @@ class Exchange(StateInterface):
     @property
     def state_name(self) -> StateEnum:
         return StateEnum.EXCHANGE
+
+    @property
+    def exchanges(self) -> Tuple[RoleEnum, RoleEnum]:
+        return self.exchange_options
 
     def to_dict(self, player_id=None) -> Dict:
         d = super().to_dict(player_id)

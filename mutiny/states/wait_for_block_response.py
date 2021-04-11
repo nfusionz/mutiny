@@ -1,4 +1,4 @@
-from typing import Dict, Union
+from typing import Dict, Union, Optional
 
 from mutiny.game_enum import StateEnum, RoleEnum
 from mutiny.game_data import GameData
@@ -28,6 +28,18 @@ class WaitForBlockResponse(StateInterface):
     @property
     def state_name(self) -> StateEnum:
         return StateEnum.WAIT_FOR_BLOCK_RESPONSE
+
+    @property
+    def queued_action(self) -> QueuedAction:
+        return self._action
+
+    @property
+    def target(self) -> int:
+        return self._blocker_id
+
+    @property
+    def blocking_role(self) -> Optional[RoleEnum]:
+        return self._block_role
 
     def to_dict(self, player_id=None) -> Dict:
         d = super().to_dict(player_id)

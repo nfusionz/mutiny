@@ -1,5 +1,7 @@
-from typing import List, Dict
-from mutiny.game_enum import CommandEnum, ActionEnum, RoleEnum
+from typing import List, Dict, Union, Optional, Tuple
+
+from mutiny.actions import QueuedAction
+from mutiny.game_enum import CommandEnum, ActionEnum, RoleEnum, StateEnum
 from mutiny.game_data import GameData
 from mutiny.player import Player
 from mutiny.exceptions import InvalidMove
@@ -18,8 +20,25 @@ class GameObject:
 
     def get_state_id(self):
         return self.game_data.state_id
+
     def get_players(self):
         return self.game_data.players
+
+    @property
+    def get_queued_action(self) -> Optional[QueuedAction]:
+        return self._state_interface.queued_action
+
+    @property
+    def get_exchanges(self) -> Optional[Tuple[RoleEnum, RoleEnum]]:
+        return self._state_interface.exchanges
+
+    @property
+    def get_blocking_role(self) -> Optional[RoleEnum]:
+        return self._state_interface.blocking_role
+
+    @property
+    def get_player_to_reveal(self) -> Optional[int]:
+        return self._state_interface.player_to_reveal
 
     def player_is_done(self, player_id: int) -> bool:
         if not self.game_data.player_alive(player_id):
@@ -31,6 +50,18 @@ class GameObject:
     def game_is_over(self):
         return self.game_data.winner_id is not None
         # return all([self.player_is_done(p) for p in range(len(self.players))])
+
+    @property
+    def get_state_name(self) -> StateEnum:
+        return self._state_interface.state_name
+
+    @property
+    def get_player_turn(self) -> int:
+        return self.game_data.player_turn
+
+    @property
+    def get_target(self) -> Optional[int]:
+        return self._state_interface.target
 
     def to_dict(self,player_id=None):
         return self._state_interface.to_dict(player_id=player_id)

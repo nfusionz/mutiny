@@ -40,6 +40,14 @@ class WaitForBlock(StateInterface):
     def state_name(self) -> StateEnum:
         return StateEnum.WAIT_FOR_BLOCK
 
+    @property
+    def queued_action(self) -> QueuedAction:
+        return self._action
+
+    @property
+    def target(self) -> int:
+        return self._action.target
+
     def error_on_noop(self, player_id: int) -> Union[None, str]:
         # If player has not already implicitly allowed
         if not self._allow[player_id] and (self._action.action_name == ActionEnum.F_AID or self._action.target == player_id):
